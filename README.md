@@ -91,14 +91,3 @@ PDF converter/
 └── templates/
     └── index.html       # Antarmuka web dashboard
 ```
-
----
-
-## 📌 Cara Push ke GitHub Repository
-
-Berdasarkan pengaturan git sebelumnya:
-```bash
-git add .
-git commit -m "feat: inisialisasi HD Word to PDF Converter dengan preservasi gambar 300 DPI"
-git push -u origin main
-```
