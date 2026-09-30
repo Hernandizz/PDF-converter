@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HD Word to PDF Converter - Gambar Jernih & Tidak Pecah</title>
+  <meta name="description" content="Konversi dokumen Word (.docx / .doc) ke PDF berkualitas Ultra-HD tanpa kompresi gambar, vector font tajam, dan resolusi cetak 300+ DPI.">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <!-- Background Glow Orbs -->
+  <div class="bg-glow orb-1" aria-hidden="true"></div>
+  <div class="bg-glow orb-2" aria-hidden="true"></div>
+  <div class="bg-glow orb-3" aria-hidden="true"></div>
+
+  <div class="app-layout">
+    <!-- Header -->
+    <header class="main-header">
+      <div class="brand-container">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">HD Docx to PDF Pro</h1>
+          <span class="brand-subtitle">Lossless 300+ DPI &bull; Vector Typography &bull; Native Word COM</span>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-hd">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"></circle>
+            <polygon points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" fill="none"></polygon>
+          </svg>
+          Ultra HD Mode Aktif
+        </span>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Hero Banner / Subtitle -->
+      <section class="hero-section">
+        <h2 class="hero-title">Ubah Word ke PDF <span class="gradient-text">Tanpa Gambar Pecah</span></h2>
+        <p class="hero-desc">
+          Teknologi ekspor direct-engine mempertahankan resolusi gambar asli hingga 100%, mencegah downsampling Word, dan menjaga teks tetap berupa vektor tajam di semua tingkat pembesaran.
+        </p>
+      </section>
+
+      <!-- Conversion Workspace Card -->
+      <section class="card workspace-card">
+        <!-- Drag and Drop Area -->
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="file-input" multiple accept=".docx,.doc" class="file-input-hidden">
+          <div class="drop-zone-content">
+            <div class="drop-icon-wrapper">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            <h3 class="drop-zone-title">Tarik & Lepas File Word ke Sini</h3>
+            <p class="drop-zone-subtitle">Mendukung file tunggal maupun banyak file sekaligus (<code>.docx</code>, <code>.doc</code>)</p>
+            <button type="button" class="btn btn-secondary" id="browse-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              Pilih Dokumen dari Komputer
+            </button>
+          </div>
+        </div>
+
+        <!-- Selected Files List -->
+        <div class="selected-files-section" id="selected-files-section" style="display: none;">
+          <div class="section-header-inline">
+            <h4 class="section-title">Dokumen yang Dipilih (<span id="file-count">0</span>)</h4>
+            <button type="button" class="btn-text text-danger" id="clear-all-btn">Hapus Semua</button>
+          </div>
+          <div class="files-list" id="files-list"></div>
+        </div>
+
+        <!-- Configuration Settings Bar -->
+        <div class="options-bar">
+          <div class="option-item">
+            <label class="toggle-switch">
+              <input type="checkbox" id="opt-optimize-print" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <div class="option-label-group">
+              <span class="option-title">Cetak Kualitas Tinggi (Print 300+ DPI)</span>
+              <span class="option-desc">Mencegah kompresi gambar default Word ke resolusi rendah</span>
+            </div>
+          </div>
+
+          <div class="option-item">
+            <label class="toggle-switch">
+              <input type="checkbox" id="opt-preserve-fonts" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <div class="option-label-group">
+              <span class="option-title">Font Vektor Asli</span>
+              <span class="option-desc">Teks tidak diubah menjadi bitmap sehingga tidak blur saat dizoom</span>
+            </div>
+          </div>
+
+          <div class="option-item">
+            <label class="toggle-switch">
+              <input type="checkbox" id="opt-bookmarks" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <div class="option-label-group">
+              <span class="option-title">Bookmark Heading & Navigasi</span>
+              <span class="option-desc">Otomatis buat daftar isi interaktif pada panel samping PDF</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="action-footer">
+          <button type="button" class="btn btn-primary btn-lg" id="convert-btn" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <span id="convert-btn-text">Mulai Konversi ke HD PDF</span>
+          </button>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="progress-container" id="progress-container" style="display: none;">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+          </div>
+          <div class="progress-status-row">
+            <span class="progress-status-text" id="progress-status-text">Memproses dokumen dengan Word Engine...</span>
+            <span class="progress-percentage" id="progress-percentage">0%</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conversion Results Section -->
+      <section class="card results-card" id="results-card" style="display: none;">
+        <div class="results-header">
+          <div class="results-title-group">
+            <div class="success-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3 class="results-title">Konversi Selesai!</h3>
+              <p class="results-subtitle" id="results-subtitle">Dokumen berhasil dikonversi dengan kualitas HD Lossless.</p>
+            </div>
+          </div>
+          <div class="results-actions">
+            <button type="button" class="btn btn-secondary" id="open-folder-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+              Buka Folder di Komputer
+            </button>
+            <a href="#" class="btn btn-primary" id="download-zip-btn" style="display: none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Unduh Semua (.ZIP)
+            </a>
+          </div>
+        </div>
+
+        <div class="converted-list" id="converted-list"></div>
+      </section>
+
+      <!-- Feature & Explanation Cards: Why Not Blurry -->
+      <section class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon icon-cyan">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+          </div>
+          <h4 class="feature-title">DoNotCompressImages = True</h4>
+          <p class="feature-desc">
+            Menginstruksikan Word secara eksplisit agar tidak melakukan downsampling resolusi gambar ke 96 atau 150 DPI saat proses rendering.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon icon-indigo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+          </div>
+          <h4 class="feature-title">wdExportOptimizeForPrint (300+ DPI)</h4>
+          <p class="feature-desc">
+            Menggunakan preset kualitas cetak profesional, bukan preset web ukuran kecil yang sering membuat foto dan grafik tampak buram.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon icon-purple">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 7V4h16v3"></path>
+              <path d="M9 20h6"></path>
+              <path d="M12 4v16"></path>
+            </svg>
+          </div>
+          <h4 class="feature-title">Vector Font Preservation</h4>
+          <p class="feature-desc">
+            Teks tidak dirasterisasi menjadi gambar raster sehingga dapat diperbesar hingga 1000% tetap tajam dan dapat disalin (selectable).
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <p>HD Word to PDF Converter &bull; Local Native Processing &bull; Privasi Terjaga 100% di Komputer Anda</p>
+    </footer>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

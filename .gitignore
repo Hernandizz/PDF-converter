@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Upload and output folders
+uploads/
+outputs/
+temp/
+*.tmp
+
+# IDE & OS
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+*.log
