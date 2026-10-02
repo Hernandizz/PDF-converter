@@ -1,8 +1,9 @@
 """
-HD Word to PDF Converter - Web Application Server
-=================================================
-Flask web server untuk menyediakan antarmuka drag-and-drop modern,
-batch conversion, inspeksi kualitas gambar DOCX, dan unduh PDF HD.
+HD Converter Pro - Web Application Server
+==========================================
+Flask web server untuk:
+  1. Konversi Word (.docx/.doc) ke PDF kualitas Ultra-HD Lossless.
+  2. Konversi PDF ke Word (.docx) via Microsoft Word COM Automation.
 """
 
 import os
@@ -13,6 +14,7 @@ import subprocess
 from flask import Flask, render_template, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 from converter import HDWordToPdfConverter, WordConverterError
+from pdf_to_word_converter import PdfToWordConverter, PdfToWordError
 
 app = Flask(__name__)
 
@@ -24,11 +26,17 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {".docx", ".doc"}
+ALLOWED_PDF_EXTENSIONS = {".pdf"}
 
 
 def is_allowed_file(filename: str) -> bool:
     _, ext = os.path.splitext(filename.lower())
     return ext in ALLOWED_EXTENSIONS
+
+
+def is_allowed_pdf(filename: str) -> bool:
+    _, ext = os.path.splitext(filename.lower())
+    return ext in ALLOWED_PDF_EXTENSIONS
 
 
 @app.route("/")
@@ -163,6 +171,90 @@ def convert_files():
     })
 
 
+@app.route("/api/pdf-to-word", methods=["POST"])
+def pdf_to_word():
+    """
+    Menerima satu atau banyak file PDF, mengonversinya ke DOCX via
+    Microsoft Word COM Automation, dan mengembalikan URL unduh.
+    """
+    files = request.files.getlist("files")
+    if not files or len(files) == 0 or (len(files) == 1 and files[0].filename == ""):
+        return jsonify({"error": "Harap pilih minimal satu file PDF"}), 400
+
+    output_format = request.form.get("output_format", "docx").lower().strip().lstrip('.')
+    if output_format not in ("docx", "doc"):
+        output_format = "docx"
+
+    converter = PdfToWordConverter()
+    converted_files = []
+    errors = []
+
+    for file in files:
+        raw_name = file.filename
+        if not raw_name or not is_allowed_pdf(raw_name):
+            errors.append({"file": raw_name, "error": "Format file tidak didukung (harus .pdf)"})
+            continue
+
+        clean_name = secure_filename(raw_name)
+        if not clean_name:
+            clean_name = "document.pdf"
+
+        input_path = os.path.join(UPLOAD_FOLDER, clean_name)
+        file.save(input_path)
+
+        base_name, _ = os.path.splitext(clean_name)
+        word_name = f"{base_name}.{output_format}"
+        output_path = os.path.join(OUTPUT_FOLDER, word_name)
+
+        try:
+            res_word = converter.convert(input_path, output_path, output_format=output_format)
+            size_bytes = os.path.getsize(res_word)
+            size_kb = round(size_bytes / 1024, 1)
+
+            converted_files.append({
+                "original_name": raw_name,
+                "word_name": word_name,
+                "docx_name": word_name,
+                "format": output_format,
+                "download_url": f"/api/download/{word_name}",
+                "size_kb": size_kb,
+            })
+        except PdfToWordError as e:
+            errors.append({"file": raw_name, "error": str(e)})
+        except Exception as e:
+            errors.append({"file": raw_name, "error": f"Error tak terduga: {str(e)}"})
+        finally:
+            if os.path.exists(input_path):
+                try:
+                    os.remove(input_path)
+                except Exception:
+                    pass
+
+    # Buat ZIP jika ada lebih dari satu file
+    zip_url = None
+    if len(converted_files) > 1:
+        zip_filename = f"converted_words.zip"
+        zip_path = os.path.join(OUTPUT_FOLDER, zip_filename)
+        try:
+            with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                for item in converted_files:
+                    fpath = os.path.join(OUTPUT_FOLDER, item["word_name"])
+                    if os.path.exists(fpath):
+                        zf.write(fpath, arcname=item["word_name"])
+            zip_url = f"/api/download/{zip_filename}"
+        except Exception:
+            zip_url = None
+
+    return jsonify({
+        "success": len(converted_files) > 0,
+        "converted": converted_files,
+        "errors": errors,
+        "zip_url": zip_url,
+        "total_converted": len(converted_files),
+        "total_errors": len(errors)
+    })
+
+
 @app.route("/api/download/<filename>")
 def download_file(filename: str):
     """
@@ -192,7 +284,7 @@ def open_folder():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print("=" * 60)
-    print("   HD WORD TO PDF CONVERTER (LOSSLESS PRINT QUALITY)")
+    print("   HD CONVERTER PRO — Word<->PDF (LOSSLESS / NATIVE COM)")
     print("=" * 60)
     print(f"Server berjalan di: http://127.0.0.1:{port}")
     print("Tekan Ctrl+C untuk berhenti.")

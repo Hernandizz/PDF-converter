@@ -3,239 +3,267 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HD Word to PDF Converter - Gambar Jernih & Tidak Pecah</title>
-  <meta name="description" content="Konversi dokumen Word (.docx / .doc) ke PDF berkualitas Ultra-HD tanpa kompresi gambar, vector font tajam, dan resolusi cetak 300+ DPI.">
-  
-  <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+  <title>HD Converter Pro — Word ↔ PDF</title>
+  <meta name="description" content="Konversi Word ke PDF HD dan PDF ke Word. 100% lokal, via Microsoft Word.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-  
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
+<div class="app-layout">
 
-
-  <div class="app-layout">
-    <!-- Header -->
-    <header class="main-header">
-      <div class="brand-container">
-        <div class="brand-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
-          </svg>
-        </div>
-        <div>
-          <h1 class="brand-title">HD Docx to PDF Pro</h1>
-          <span class="brand-subtitle">Lossless 300+ DPI &bull; Vector Typography &bull; Native Word COM</span>
-        </div>
+  <!-- Header -->
+  <header class="main-header">
+    <div class="brand-container">
+      <div class="brand-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
       </div>
-      <div class="header-badges">
-        <span class="badge badge-hd">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"></circle>
-            <polygon points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" fill="none"></polygon>
-          </svg>
-          Ultra HD Mode Aktif
-        </span>
+      <div>
+        <h1 class="brand-title">HD Converter Pro</h1>
+        <span class="brand-subtitle">100% Lokal &bull; Native Word COM &bull; Tanpa Kompresi</span>
       </div>
-    </header>
+    </div>
+    <span class="badge badge-hd">Word COM Engine</span>
+  </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Hero Banner / Subtitle -->
+  <!-- Tab Bar -->
+  <div class="tab-bar" role="tablist">
+    <button class="tab-btn tab-btn--active" id="tab-word-to-pdf" role="tab" aria-selected="true" aria-controls="panel-word-to-pdf" data-tab="word-to-pdf">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+      Word → PDF
+    </button>
+    <button class="tab-btn" id="tab-pdf-to-word" role="tab" aria-selected="false" aria-controls="panel-pdf-to-word" data-tab="pdf-to-word">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+      PDF → Word
+    </button>
+  </div>
+
+  <main>
+
+    <!-- ====================================================== -->
+    <!-- PANEL 1: Word → PDF                                    -->
+    <!-- ====================================================== -->
+    <div id="panel-word-to-pdf" role="tabpanel" aria-labelledby="tab-word-to-pdf">
+
       <section class="hero-section">
-        <h2 class="hero-title">Ubah Word ke PDF <span class="accent-text">Tanpa Gambar Pecah</span></h2>
-        <p class="hero-desc">
-          Teknologi ekspor direct-engine mempertahankan resolusi gambar asli hingga 100%, mencegah downsampling Word, dan menjaga teks tetap berupa vektor tajam di semua tingkat pembesaran.
-        </p>
+        <h2 class="hero-title">Word ke <span class="accent-text">PDF HD</span></h2>
+        <p class="hero-desc">Gambar tidak pecah, font vektor tajam, 300+ DPI. Upload file lalu konversi.</p>
       </section>
 
-      <!-- Conversion Workspace Card -->
-      <section class="card workspace-card">
-        <!-- Drag and Drop Area -->
-        <div class="drop-zone" id="drop-zone">
-          <input type="file" id="file-input" multiple accept=".docx,.doc" class="file-input-hidden">
+      <section class="card">
+        <!-- Drop Zone -->
+        <div class="drop-zone" id="drop-zone-w2p">
+          <input type="file" id="file-input-w2p" multiple accept=".docx,.doc" class="file-input-hidden">
           <div class="drop-zone-content">
             <div class="drop-icon-wrapper">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
             </div>
-            <h3 class="drop-zone-title">Tarik & Lepas File Word ke Sini</h3>
-            <p class="drop-zone-subtitle">Mendukung file tunggal maupun banyak file sekaligus (<code>.docx</code>, <code>.doc</code>)</p>
-            <button type="button" class="btn btn-secondary" id="browse-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              Pilih Dokumen dari Komputer
-            </button>
+            <h3 class="drop-zone-title">Tarik file Word ke sini</h3>
+            <p class="drop-zone-subtitle"><code>.docx</code> &bull; <code>.doc</code> &bull; Batch didukung</p>
+            <button type="button" class="btn btn-secondary" id="browse-btn-w2p">Pilih File</button>
           </div>
         </div>
 
-        <!-- Selected Files List -->
-        <div class="selected-files-section" id="selected-files-section" style="display: none;">
+        <!-- File List -->
+        <div class="selected-files-section" id="selected-files-section-w2p" style="display:none;">
           <div class="section-header-inline">
-            <h4 class="section-title">Dokumen yang Dipilih (<span id="file-count">0</span>)</h4>
-            <button type="button" class="btn-text text-danger" id="clear-all-btn">Hapus Semua</button>
+            <h4 class="section-title">Dipilih (<span id="file-count-w2p">0</span>)</h4>
+            <button type="button" class="btn-text text-danger" id="clear-all-btn-w2p">Hapus Semua</button>
           </div>
-          <div class="files-list" id="files-list"></div>
+          <div class="files-list" id="files-list-w2p"></div>
         </div>
 
-        <!-- Configuration Settings Bar -->
+        <!-- Options -->
         <div class="options-bar">
           <div class="option-item">
-            <label class="toggle-switch">
-              <input type="checkbox" id="opt-optimize-print" checked>
-              <span class="toggle-slider"></span>
-            </label>
+            <label class="toggle-switch"><input type="checkbox" id="opt-optimize-print" checked><span class="toggle-slider"></span></label>
             <div class="option-label-group">
-              <span class="option-title">Cetak Kualitas Tinggi (Print 300+ DPI)</span>
-              <span class="option-desc">Mencegah kompresi gambar default Word ke resolusi rendah</span>
+              <span class="option-title">Kualitas Cetak 300+ DPI</span>
+              <span class="option-desc">Gambar tidak dikompresi</span>
             </div>
           </div>
-
           <div class="option-item">
-            <label class="toggle-switch">
-              <input type="checkbox" id="opt-preserve-fonts" checked>
-              <span class="toggle-slider"></span>
-            </label>
+            <label class="toggle-switch"><input type="checkbox" id="opt-preserve-fonts" checked><span class="toggle-slider"></span></label>
             <div class="option-label-group">
-              <span class="option-title">Font Vektor Asli</span>
-              <span class="option-desc">Teks tidak diubah menjadi bitmap sehingga tidak blur saat dizoom</span>
+              <span class="option-title">Font Vektor</span>
+              <span class="option-desc">Teks tajam di semua zoom</span>
             </div>
           </div>
-
           <div class="option-item">
-            <label class="toggle-switch">
-              <input type="checkbox" id="opt-bookmarks" checked>
-              <span class="toggle-slider"></span>
-            </label>
+            <label class="toggle-switch"><input type="checkbox" id="opt-bookmarks" checked><span class="toggle-slider"></span></label>
             <div class="option-label-group">
-              <span class="option-title">Bookmark Heading & Navigasi</span>
-              <span class="option-desc">Otomatis buat daftar isi interaktif pada panel samping PDF</span>
+              <span class="option-title">Bookmark PDF</span>
+              <span class="option-desc">Daftar isi interaktif</span>
             </div>
           </div>
         </div>
 
-        <!-- Actions -->
+        <!-- Convert -->
         <div class="action-footer">
-          <button type="button" class="btn btn-primary btn-lg" id="convert-btn" disabled>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-              <line x1="12" y1="22.08" x2="12" y2="12"></line>
-            </svg>
-            <span id="convert-btn-text">Mulai Konversi ke HD PDF</span>
+          <button type="button" class="btn btn-primary btn-lg" id="convert-btn-w2p" disabled>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+            <span id="convert-btn-text-w2p">Konversi ke PDF</span>
           </button>
         </div>
 
-        <!-- Progress Indicator -->
-        <div class="progress-container" id="progress-container" style="display: none;">
-          <div class="progress-bar-track">
-            <div class="progress-bar-fill" id="progress-bar-fill"></div>
-          </div>
+        <!-- Progress -->
+        <div class="progress-container" id="progress-container-w2p" style="display:none;">
+          <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-bar-fill-w2p"></div></div>
           <div class="progress-status-row">
-            <span class="progress-status-text" id="progress-status-text">Memproses dokumen dengan Word Engine...</span>
-            <span class="progress-percentage" id="progress-percentage">0%</span>
+            <span id="progress-status-text-w2p">Memproses...</span>
+            <span class="progress-percentage" id="progress-percentage-w2p">0%</span>
           </div>
         </div>
       </section>
 
-      <!-- Conversion Results Section -->
-      <section class="card results-card" id="results-card" style="display: none;">
+      <!-- Results W2P -->
+      <section class="card results-card" id="results-card-w2p" style="display:none;">
         <div class="results-header">
           <div class="results-title-group">
             <div class="success-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <div>
-              <h3 class="results-title">Konversi Selesai!</h3>
-              <p class="results-subtitle" id="results-subtitle">Dokumen berhasil dikonversi dengan kualitas HD Lossless.</p>
+              <h3 class="results-title">Selesai</h3>
+              <p class="results-subtitle" id="results-subtitle-w2p"></p>
             </div>
           </div>
           <div class="results-actions">
             <button type="button" class="btn btn-secondary" id="open-folder-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              </svg>
-              Buka Folder di Komputer
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              Buka Folder
             </button>
-            <a href="#" class="btn btn-primary" id="download-zip-btn" style="display: none;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-              Unduh Semua (.ZIP)
+            <a href="#" class="btn btn-primary" id="download-zip-btn-w2p" style="display:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Unduh ZIP
             </a>
           </div>
         </div>
-
-        <div class="converted-list" id="converted-list"></div>
+        <div class="converted-list" id="converted-list-w2p"></div>
       </section>
 
-      <!-- Feature & Explanation Cards: Why Not Blurry -->
-      <section class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon icon-cyan">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <polyline points="21 15 16 10 5 21"></polyline>
-            </svg>
+    </div><!-- /panel-word-to-pdf -->
+
+
+    <!-- ====================================================== -->
+    <!-- PANEL 2: PDF → Word                                    -->
+    <!-- ====================================================== -->
+    <div id="panel-pdf-to-word" role="tabpanel" aria-labelledby="tab-pdf-to-word" style="display:none;">
+
+      <section class="hero-section">
+        <h2 class="hero-title">PDF ke <span class="accent-text">Word</span></h2>
+        <p class="hero-desc">Buka PDF via Microsoft Word lalu simpan sebagai dokumen yang dapat diedit.</p>
+      </section>
+
+      <section class="card">
+        <!-- Drop Zone -->
+        <div class="drop-zone" id="drop-zone-p2w">
+          <input type="file" id="file-input-p2w" multiple accept=".pdf" class="file-input-hidden">
+          <div class="drop-zone-content">
+            <div class="drop-icon-wrapper drop-icon-wrapper--pdf">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            </div>
+            <h3 class="drop-zone-title">Tarik file PDF ke sini</h3>
+            <p class="drop-zone-subtitle"><code>.pdf</code> &bull; Batch didukung</p>
+            <button type="button" class="btn btn-secondary" id="browse-btn-p2w">Pilih File</button>
           </div>
-          <h4 class="feature-title">DoNotCompressImages = True</h4>
-          <p class="feature-desc">
-            Menginstruksikan Word secara eksplisit agar tidak melakukan downsampling resolusi gambar ke 96 atau 150 DPI saat proses rendering.
-          </p>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon icon-indigo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 6 2 18 2 18 9"></polyline>
-              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-              <rect x="6" y="14" width="12" height="8"></rect>
-            </svg>
+        <!-- File List -->
+        <div class="selected-files-section" id="selected-files-section-p2w" style="display:none;">
+          <div class="section-header-inline">
+            <h4 class="section-title">Dipilih (<span id="file-count-p2w">0</span>)</h4>
+            <button type="button" class="btn-text text-danger" id="clear-all-btn-p2w">Hapus Semua</button>
           </div>
-          <h4 class="feature-title">wdExportOptimizeForPrint (300+ DPI)</h4>
-          <p class="feature-desc">
-            Menggunakan preset kualitas cetak profesional, bukan preset web ukuran kecil yang sering membuat foto dan grafik tampak buram.
-          </p>
+          <div class="files-list" id="files-list-p2w"></div>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon icon-purple">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 7V4h16v3"></path>
-              <path d="M9 20h6"></path>
-              <path d="M12 4v16"></path>
-            </svg>
+        <!-- Output Format -->
+        <div class="options-bar">
+          <div class="option-item option-item--format">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="var(--text-secondary)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <div class="option-label-group">
+              <span class="option-title">Format Output</span>
+              <span class="option-desc">Pilih format dokumen Word</span>
+            </div>
+            <div class="format-select-group" id="format-select-group">
+              <label class="format-option format-option--active">
+                <input type="radio" name="output-format" value="docx" checked hidden>
+                <span>.docx</span>
+              </label>
+              <label class="format-option">
+                <input type="radio" name="output-format" value="doc" hidden>
+                <span>.doc</span>
+              </label>
+            </div>
           </div>
-          <h4 class="feature-title">Vector Font Preservation</h4>
-          <p class="feature-desc">
-            Teks tidak dirasterisasi menjadi gambar raster sehingga dapat diperbesar hingga 1000% tetap tajam dan dapat disalin (selectable).
-          </p>
+          <div class="option-item">
+            <div class="notice-inline">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>PDF berbasis teks menghasilkan hasil terbaik. PDF scan mungkin tidak rapi.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Convert -->
+        <div class="action-footer">
+          <button type="button" class="btn btn-primary btn-lg" id="convert-btn-p2w" disabled>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span id="convert-btn-text-p2w">Konversi ke Word</span>
+          </button>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-container" id="progress-container-p2w" style="display:none;">
+          <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-bar-fill-p2w"></div></div>
+          <div class="progress-status-row">
+            <span id="progress-status-text-p2w">Word membuka PDF...</span>
+            <span class="progress-percentage" id="progress-percentage-p2w">0%</span>
+          </div>
         </div>
       </section>
-    </main>
 
-    <!-- Footer -->
-    <footer class="main-footer">
-      <p>HD Word to PDF Converter &bull; Local Native Processing &bull; Privasi Terjaga 100% di Komputer Anda</p>
-    </footer>
-  </div>
+      <!-- Results P2W -->
+      <section class="card results-card" id="results-card-p2w" style="display:none;">
+        <div class="results-header">
+          <div class="results-title-group">
+            <div class="success-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div>
+              <h3 class="results-title">Selesai</h3>
+              <p class="results-subtitle" id="results-subtitle-p2w"></p>
+            </div>
+          </div>
+          <div class="results-actions">
+            <button type="button" class="btn btn-secondary" id="open-folder-btn-p2w">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              Buka Folder
+            </button>
+            <a href="#" class="btn btn-primary" id="download-zip-btn-p2w" style="display:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Unduh ZIP
+            </a>
+          </div>
+        </div>
+        <div class="converted-list" id="converted-list-p2w"></div>
+      </section>
 
-  <script src="/static/js/app.js"></script>
+    </div><!-- /panel-pdf-to-word -->
+
+  </main>
+
+  <footer class="main-footer">
+    <p>HD Converter Pro &bull; Word ↔ PDF &bull; 100% Lokal &amp; Privat</p>
+  </footer>
+
+</div>
+<script src="/static/js/app.js"></script>
 </body>
 </html>
