@@ -1,6 +1,7 @@
-# Core dependencies for HD Word to PDF Converter Pro
+# Core dependencies for HD Word to PDF Converter Pro & All-in-One PDF Suite
 comtypes>=1.4.17
 flask>=3.1.0
 python-docx>=1.2.0
 pillow>=12.0.0
 requests>=2.28.0
+pypdf>=6.0.0
