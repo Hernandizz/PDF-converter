@@ -221,23 +221,21 @@ def split_pdf(
         }
 
     else:
-        # Mode 'all': Pisah setiap halaman
-        temp_page_files = []
-        for i, page in enumerate(reader.pages):
-            writer = PdfWriter()
-            writer.add_page(page)
-            page_filename = f"{base_name}_hal_{i+1:03d}.pdf"
-            page_filepath = os.path.join(output_dir, page_filename)
-            with open(page_filepath, "wb") as f_out:
-                writer.write(f_out)
-            temp_page_files.append(page_filepath)
-
-        # Kemas semua file halaman ke dalam ZIP
+        # Mode 'all': Pisah setiap halaman langsung ke dalam ZIP in-memory (tanpa I/O disk berlebih)
+        import io
         zip_filename = f"{base_name}_pisah_semua.zip"
         zip_path = os.path.join(output_dir, zip_filename)
+        created_names = []
+
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-            for p_file in temp_page_files:
-                zf.write(p_file, arcname=os.path.basename(p_file))
+            for i, page in enumerate(reader.pages):
+                writer = PdfWriter()
+                writer.add_page(page)
+                page_filename = f"{base_name}_hal_{i+1:03d}.pdf"
+                created_names.append(page_filename)
+                pdf_bytes = io.BytesIO()
+                writer.write(pdf_bytes)
+                zf.writestr(page_filename, pdf_bytes.getvalue())
 
         return {
             "mode": "all",
@@ -245,7 +243,7 @@ def split_pdf(
             "extracted_pages_count": total_pages,
             "primary_file": zip_filename,
             "is_zip": True,
-            "created_files": [os.path.basename(f) for f in temp_page_files]
+            "created_files": created_names
         }
 
 

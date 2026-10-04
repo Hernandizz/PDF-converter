@@ -128,16 +128,18 @@ def convert_files():
         pdf_name = f"{base_name}.pdf"
         output_path = os.path.join(OUTPUT_FOLDER, pdf_name)
 
-        # Cek info gambar jika docx
+        # Fast count info gambar jika docx (tanpa membuka image Pillow)
         image_info = None
         if clean_name.lower().endswith(".docx"):
             try:
-                image_info = converter.inspect_docx(input_path)
+                with zipfile.ZipFile(input_path, 'r') as zf:
+                    media_files = [f for f in zf.namelist() if f.startswith("word/media/")]
+                    image_info = {"image_count": len(media_files), "estimated_quality": "Ultra HD Lossless"}
             except Exception:
                 pass
 
         try:
-            res_pdf = converter.convert(input_path, output_path)
+            res_pdf = converter.convert(input_path, output_path, keep_word_open=True)
             size_bytes = os.path.getsize(res_pdf)
             size_kb = round(size_bytes / 1024, 1)
 

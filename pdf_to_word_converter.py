@@ -17,8 +17,15 @@ import threading
 from typing import Optional, Dict, Any
 
 try:
+    from pdf2docx import Converter as Pdf2DocxConverter
+    PDF2DOCX_AVAILABLE = True
+except ImportError:
+    PDF2DOCX_AVAILABLE = False
+
+try:
     import comtypes
     import comtypes.client
+    from converter import WordAppManager
     COMTYPES_AVAILABLE = True
 except ImportError:
     COMTYPES_AVAILABLE = False
@@ -42,9 +49,8 @@ pdf_word_lock = threading.Lock()
 
 class PdfToWordConverter:
     """
-    Konverter PDF ke DOCX via Microsoft Word COM Automation.
-    Word membuka PDF menggunakan engine PDF Reflow built-in,
-    lalu menyimpan hasilnya sebagai DOCX.
+    Konverter PDF ke DOCX via pdf2docx (High Performance Native Python)
+    atau Microsoft Word COM Automation sebagai Fallback.
     """
 
     def __init__(self):
@@ -62,11 +68,6 @@ class PdfToWordConverter:
         Returns:
             Path absolut ke file Word hasil konversi.
         """
-        if not COMTYPES_AVAILABLE:
-            raise PdfToWordError(
-                "Modul 'comtypes' tidak ditemukan. Jalankan: pip install comtypes"
-            )
-
         input_abs = os.path.abspath(input_pdf_path)
         if not os.path.isfile(input_abs):
             raise PdfToWordError(f"File PDF tidak ditemukan: {input_pdf_path}")
@@ -74,14 +75,11 @@ class PdfToWordConverter:
         if not input_abs.lower().endswith(".pdf"):
             raise PdfToWordError(f"File bukan berformat PDF: {input_pdf_path}")
 
-        # Tentukan format dan COM constant
         fmt = (output_format or 'docx').lower().strip().lstrip('.')
         if fmt not in ('docx', 'doc'):
             fmt = 'docx'
         target_ext = f".{fmt}"
-        word_format = WD_FORMAT_DOCUMENT_DEFAULT if fmt == 'docx' else WD_FORMAT_DOCUMENT_97
 
-        # Tentukan path output
         if not output_docx_path:
             base, _ = os.path.splitext(input_abs)
             output_abs = f"{base}{target_ext}"
@@ -89,85 +87,71 @@ class PdfToWordConverter:
             base, _ = os.path.splitext(os.path.abspath(output_docx_path))
             output_abs = f"{base}{target_ext}"
 
-        # Buat direktori output jika belum ada
         out_dir = os.path.dirname(output_abs)
         if out_dir:
             os.makedirs(out_dir, exist_ok=True)
 
-        # Hapus file lama agar tidak terjadi conflict
         if os.path.exists(output_abs):
             try:
                 os.remove(output_abs)
             except OSError as e:
-                raise PdfToWordError(
-                    f"Tidak dapat menimpa file Word yang sedang dibuka: {e}"
-                )
+                raise PdfToWordError(f"Tidak dapat menimpa file Word yang sedang dibuka: {e}")
 
-        # Inisialisasi COM untuk thread saat ini
-        comtypes.CoInitialize()
+        # OPSI 1: Gunakan pdf2docx jika tersedia dan output adalah DOCX (Sangat Cepat & Tanpa Word)
+        if PDF2DOCX_AVAILABLE and fmt == 'docx':
+            try:
+                cv = Pdf2DocxConverter(input_abs)
+                cv.convert(output_abs, start=0, end=None)
+                cv.close()
+
+                if os.path.exists(output_abs) and os.path.getsize(output_abs) > 0:
+                    return output_abs
+            except Exception as e:
+                # Jika pdf2docx gagal (misal font khusus), coba fallback ke MS Word COM
+                pass
+
+        # OPSI 2: Fallback ke MS Word COM Automation via WordAppManager
+        if not COMTYPES_AVAILABLE:
+            raise PdfToWordError(
+                "Tidak ada engine konversi PDF ke Word yang tersedia (install pdf2docx atau comtypes)."
+            )
+
+        word_format = WD_FORMAT_DOCUMENT_DEFAULT if fmt == 'docx' else WD_FORMAT_DOCUMENT_97
+        manager = WordAppManager.get_instance()
 
         with pdf_word_lock:
-            word_app = None
+            word_app = manager.acquire_app()
             doc = None
             try:
-                # Buka Microsoft Word
-                word_app = comtypes.client.CreateObject("Word.Application")
-                word_app.Visible = False
-                word_app.DisplayAlerts = WD_ALERTS_NONE
-
-                # Nonaktifkan dialog dan auto-update
-                try:
-                    word_app.Options.DoNotPromptForConvert = True
-                    word_app.Options.UpdateLinksAtOpen = False
-                    word_app.Options.WarnBeforeSavingAll = False
-                except Exception:
-                    pass
-
-                # Buka PDF — Word akan otomatis menggunakan PDF Reflow
                 doc = word_app.Documents.Open(
                     FileName=input_abs,
                     ConfirmConversions=False,
-                    ReadOnly=False,          # Harus False agar bisa disimpan ulang
+                    ReadOnly=False,
                     AddToRecentFiles=False,
                     Visible=False
                 )
 
-                # Simpan ke format yang dipilih
                 doc.SaveAs2(
                     FileName=output_abs,
                     FileFormat=word_format,
                     AddToRecentFiles=False,
                 )
 
-                # Verifikasi hasil
                 if not os.path.exists(output_abs) or os.path.getsize(output_abs) == 0:
-                    raise PdfToWordError(
-                        "Gagal menghasilkan file DOCX (file kosong atau tidak terbentuk)."
-                    )
+                    raise PdfToWordError("Gagal menghasilkan file DOCX (file kosong atau tidak terbentuk).")
 
                 return output_abs
 
             except PdfToWordError:
                 raise
             except Exception as e:
-                raise PdfToWordError(
-                    f"Gagal mengonversi '{os.path.basename(input_pdf_path)}': {str(e)}"
-                )
+                raise PdfToWordError(f"Gagal mengonversi '{os.path.basename(input_pdf_path)}': {str(e)}")
             finally:
                 if doc:
                     try:
                         doc.Close(SaveChanges=WD_DO_NOT_SAVE_CHANGES)
                     except Exception:
                         pass
-                if word_app:
-                    try:
-                        word_app.Quit()
-                    except Exception:
-                        pass
-                try:
-                    comtypes.CoUninitialize()
-                except Exception:
-                    pass
 
     def get_pdf_info(self, pdf_path: str) -> Dict[str, Any]:
         """

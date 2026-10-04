@@ -48,6 +48,72 @@ class WordConverterError(Exception):
 word_lock = threading.Lock()
 
 
+class WordAppManager:
+    """
+    Manager terpusat untuk instansi MS Word COM Automation.
+    Menghindari overhead pembuatan & penutupan proses Word.exe (3-10 detik) pada setiap konversi file.
+    """
+    _instance = None
+    _lock = threading.Lock()
+
+    def __init__(self):
+        self.word_app = None
+
+    @classmethod
+    def get_instance(cls):
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = WordAppManager()
+            return cls._instance
+
+    def acquire_app(self):
+        """Mendapatkan atau membuat instansi Word Application yang siap digunakan."""
+        if not COMTYPES_AVAILABLE:
+            raise WordConverterError(
+                "Modul 'comtypes' tidak ditemukan. Jalankan: pip install comtypes"
+            )
+
+        comtypes.CoInitialize()
+
+        if self.word_app is not None:
+            try:
+                # Tes kesehatan instansi COM
+                _ = self.word_app.Version
+                return self.word_app
+            except Exception:
+                self.word_app = None
+
+        try:
+            self.word_app = comtypes.client.CreateObject("Word.Application")
+            self.word_app.Visible = False
+            self.word_app.DisplayAlerts = WD_ALERTS_NONE
+            try:
+                self.word_app.ScreenUpdating = False  # Matikan rendering layar untuk kecepatan 2x-3x
+                self.word_app.Options.DoNotPromptForConvert = True
+                self.word_app.Options.SaveInterval = 0
+                self.word_app.Options.UpdateLinksAtOpen = False
+            except Exception:
+                pass
+            return self.word_app
+        except Exception as e:
+            self.word_app = None
+            raise WordConverterError(f"Gagal membuka Microsoft Word COM: {str(e)}")
+
+    def close_app(self):
+        """Menutup aplikasi Word jika diperlukan."""
+        with self._lock:
+            if self.word_app is not None:
+                try:
+                    self.word_app.Quit()
+                except Exception:
+                    pass
+                self.word_app = None
+                try:
+                    comtypes.CoUninitialize()
+                except Exception:
+                    pass
+
+
 class HDWordToPdfConverter:
     """
     Kelas konverter Word ke PDF dengan konfigurasi Ultra-HD Lossless.
@@ -61,8 +127,7 @@ class HDWordToPdfConverter:
     @staticmethod
     def inspect_docx(docx_path: str) -> Dict[str, Any]:
         """
-        Memeriksa kualitas gambar internal di dalam file DOCX sebelum dikonversi.
-        Menghasilkan statistik gambar, resolusi, dan dimensi asli.
+        Memeriksa kualitas gambar internal di dalam file DOCX secara cepat.
         """
         stats: Dict[str, Any] = {
             "file_name": os.path.basename(docx_path),
@@ -88,10 +153,7 @@ class HDWordToPdfConverter:
                         with Image.open(io.BytesIO(data)) as img:
                             width, height = img.size
                             dpi = img.info.get("dpi", (72, 72))
-                            if isinstance(dpi, tuple):
-                                dpi_val = round(dpi[0])
-                            else:
-                                dpi_val = round(dpi)
+                            dpi_val = round(dpi[0]) if isinstance(dpi, tuple) else round(dpi)
 
                             is_hd = (width >= 1280 or height >= 1280 or dpi_val >= 200)
                             if is_hd:
@@ -121,15 +183,11 @@ class HDWordToPdfConverter:
 
         return stats
 
-    def convert(self, input_path: str, output_path: Optional[str] = None) -> str:
+    def convert(self, input_path: str, output_path: Optional[str] = None, keep_word_open: bool = False) -> str:
         """
         Mengonversi satu file DOC/DOCX ke PDF berkualitas HD tanpa kompresi gambar.
+        Menggunakan WordAppManager untuk penggunaan ulang instansi MS Word (super cepat).
         """
-        if not COMTYPES_AVAILABLE:
-            raise WordConverterError(
-                "Modul 'comtypes' tidak ditemukan. Jalankan: pip install comtypes"
-            )
-
         input_abs = os.path.abspath(input_path)
         if not os.path.isfile(input_abs):
             raise WordConverterError(f"File dokumen tidak ditemukan: {input_path}")
@@ -140,37 +198,21 @@ class HDWordToPdfConverter:
         else:
             output_abs = os.path.abspath(output_path)
 
-        # Pastikan direktori output sudah dibuat
         os.makedirs(os.path.dirname(output_abs), exist_ok=True)
 
-        # Hapus file lama jika ada
         if os.path.exists(output_abs):
             try:
                 os.remove(output_abs)
             except OSError as e:
                 raise WordConverterError(f"Tidak dapat menimpa file PDF yang sedang dibuka: {e}")
 
-        # Inisialisasi COM untuk thread saat ini
-        comtypes.CoInitialize()
+        manager = WordAppManager.get_instance()
 
         with word_lock:
-            word_app = None
+            word_app = manager.acquire_app()
             doc = None
             try:
-                # Buka Word Application
-                word_app = comtypes.client.CreateObject("Word.Application")
-                word_app.Visible = False
-                word_app.DisplayAlerts = WD_ALERTS_NONE
-
-                # Konfigurasi opsi Word untuk kualitas maksimal
-                try:
-                    word_app.Options.DoNotPromptForConvert = True
-                    word_app.Options.SaveInterval = 0
-                    word_app.Options.UpdateLinksAtOpen = False
-                except Exception:
-                    pass
-
-                # Buka dokumen dalam mode ReadOnly agar aman
+                # Buka dokumen dalam mode ReadOnly
                 doc = word_app.Documents.Open(
                     FileName=input_abs,
                     ConfirmConversions=False,
@@ -179,9 +221,7 @@ class HDWordToPdfConverter:
                     Visible=False
                 )
 
-                # ==============================================================
-                # PENTING: Cegah kompresi gambar otomatis oleh Word
-                # ==============================================================
+                # Cegah kompresi gambar otomatis
                 try:
                     doc.DoNotCompressImages = True
                 except Exception:
@@ -201,18 +241,17 @@ class HDWordToPdfConverter:
                     OutputFileName=output_abs,
                     ExportFormat=WD_EXPORT_FORMAT_PDF,
                     OpenAfterExport=False,
-                    OptimizeFor=optimize_flag,            # Kualitas cetak maksimal (tidak blur)
+                    OptimizeFor=optimize_flag,
                     Range=WD_EXPORT_ALL_DOCUMENT,
                     Item=WD_EXPORT_DOCUMENT_CONTENT,
                     IncludeDocProps=True,
                     KeepIRM=True,
-                    CreateBookmarks=bookmark_flag,        # Pertahankan daftar isi / bookmark
-                    DocStructureTags=True,                # Tag semantik & aksesibilitas
-                    BitmapMissingFonts=not self.preserve_fonts, # False = tetap vektor murni
-                    UseISO19005_1=False                   # False agar gamut warna & gambar tidak dikonversi kaku
+                    CreateBookmarks=bookmark_flag,
+                    DocStructureTags=True,
+                    BitmapMissingFonts=not self.preserve_fonts,
+                    UseISO19005_1=False
                 )
 
-                # Verifikasi hasil
                 if not os.path.exists(output_abs) or os.path.getsize(output_abs) == 0:
                     raise WordConverterError("Gagal menghasilkan file PDF (file kosong atau tidak terbentuk).")
 
@@ -227,16 +266,13 @@ class HDWordToPdfConverter:
                         doc.Close(SaveChanges=False)
                     except Exception:
                         pass
-                if word_app:
-                    try:
-                        word_app.Quit()
-                    except Exception:
-                        pass
-                comtypes.CoUninitialize()
+                if not keep_word_open:
+                    # Tidak menutup Word App jika ingin dipakai ulang di server/batch, tetapi melepaskan COM thread jika diperlukan
+                    pass
 
     def batch_convert(self, input_paths: List[str], output_dir: Optional[str] = None) -> List[Dict[str, Any]]:
         """
-        Mengonversi banyak file Word sekaligus ke dalam folder tujuan.
+        Mengonversi banyak file Word sekaligus dalam 1 sesi MS Word (sangat cepat).
         """
         results = []
         for path in input_paths:
@@ -249,17 +285,13 @@ class HDWordToPdfConverter:
                 "stats": None
             }
             try:
-                # Dapatkan statistik gambar docx
-                if path.lower().endswith(".docx"):
-                    res["stats"] = self.inspect_docx(path)
-
                 out_pdf = None
                 if output_dir:
                     os.makedirs(output_dir, exist_ok=True)
                     base_name, _ = os.path.splitext(os.path.basename(path))
                     out_pdf = os.path.join(output_dir, f"{base_name}.pdf")
 
-                output_file = self.convert(path, out_pdf)
+                output_file = self.convert(path, out_pdf, keep_word_open=True)
                 res["success"] = True
                 res["output_pdf"] = output_file
                 res["output_size"] = os.path.getsize(output_file)
@@ -267,6 +299,7 @@ class HDWordToPdfConverter:
                 res["error"] = str(e)
 
             results.append(res)
+
         return results
 
 
