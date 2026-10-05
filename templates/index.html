@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HD Converter Pro — Word ↔ PDF</title>
-  <meta name="description" content="Konversi Word ke PDF HD dan PDF ke Word. 100% lokal, via Microsoft Word.">
+  <title>HD Document &amp; PDF Suite — Professional Local Engine</title>
+  <meta name="description" content="Konversi Word ke PDF HD, PDF ke Word, Gabung PDF, Pisah PDF, dan Gambar ke PDF. 100% lokal via Native Word COM.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
 <div class="app-layout">
 
-  <!-- Header -->
+  <!-- Main Executive Header -->
   <header class="main-header">
     <div class="brand-container">
       <div class="brand-icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
           <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -26,32 +26,35 @@
       </div>
       <div>
         <h1 class="brand-title">HD Document &amp; PDF Suite</h1>
-        <span class="brand-subtitle">100% Lokal &bull; Native Word COM &bull; All-in-One PDF Tools</span>
+        <span class="brand-subtitle">Native Microsoft Word COM Engine &bull; Lossless Document Converter</span>
       </div>
     </div>
-    <span class="badge badge-hd">Suite Pro Edition</span>
+    <span class="badge badge-hd">
+      <span class="badge-pulse-dot"></span>
+      100% Offline &amp; Private
+    </span>
   </header>
 
-  <!-- Tab Bar -->
+  <!-- Segmented Tab Navigation -->
   <div class="tab-bar" role="tablist">
     <button class="tab-btn tab-btn--active" id="tab-word-to-pdf" role="tab" aria-selected="true" aria-controls="panel-word-to-pdf" data-tab="word-to-pdf">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
       Word → PDF
     </button>
     <button class="tab-btn" id="tab-pdf-to-word" role="tab" aria-selected="false" aria-controls="panel-pdf-to-word" data-tab="pdf-to-word">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
       PDF → Word
     </button>
     <button class="tab-btn" id="tab-merge-pdf" role="tab" aria-selected="false" aria-controls="panel-merge-pdf" data-tab="merge-pdf">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
       Gabung PDF
     </button>
     <button class="tab-btn" id="tab-split-pdf" role="tab" aria-selected="false" aria-controls="panel-split-pdf" data-tab="split-pdf">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
       Pisah PDF
     </button>
     <button class="tab-btn" id="tab-image-to-pdf" role="tab" aria-selected="false" aria-controls="panel-image-to-pdf" data-tab="image-to-pdf">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
       Gambar → PDF
     </button>
   </div>
@@ -64,28 +67,42 @@
     <div id="panel-word-to-pdf" role="tabpanel" aria-labelledby="tab-word-to-pdf">
 
       <section class="hero-section">
-        <h2 class="hero-title">Word ke <span class="accent-text">PDF HD</span></h2>
-        <p class="hero-desc">Gambar tidak pecah, font vektor tajam, 300+ DPI. Upload file lalu konversi.</p>
+        <h2 class="hero-title">Word ke <span class="accent-text">PDF HD Lossless</span></h2>
+        <p class="hero-desc">Render dokumen Word persis 1:1 tanpa gambar pecah, font tajam 300+ DPI, dan layout utuh via Word Engine.</p>
+        <div class="hero-badges-row">
+          <span class="hero-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Native COM Engine
+          </span>
+          <span class="hero-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            300+ DPI Print Quality
+          </span>
+          <span class="hero-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Batch Multiple Files
+          </span>
+        </div>
       </section>
 
-      <section class="card">
+      <section class="card" style="margin-top: 20px;">
         <!-- Drop Zone -->
         <div class="drop-zone" id="drop-zone-w2p">
           <input type="file" id="file-input-w2p" multiple accept=".docx,.doc" class="file-input-hidden">
           <div class="drop-zone-content">
             <div class="drop-icon-wrapper">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
             </div>
             <h3 class="drop-zone-title">Tarik file Word ke sini</h3>
-            <p class="drop-zone-subtitle"><code>.docx</code> &bull; <code>.doc</code> &bull; Batch didukung</p>
-            <button type="button" class="btn btn-secondary" id="browse-btn-w2p">Pilih File</button>
+            <p class="drop-zone-subtitle">Mendukung file <code>.docx</code> &bull; <code>.doc</code> &bull; Pilih banyak file sekaligus</p>
+            <button type="button" class="btn btn-secondary" id="browse-btn-w2p">Pilih Berkas Word</button>
           </div>
         </div>
 
         <!-- File List -->
         <div class="selected-files-section" id="selected-files-section-w2p" style="display:none;">
           <div class="section-header-inline">
-            <h4 class="section-title">Dipilih (<span id="file-count-w2p">0</span>)</h4>
+            <h4 class="section-title">Berkas Terpilih (<span id="file-count-w2p">0</span>)</h4>
             <button type="button" class="btn-text text-danger" id="clear-all-btn-w2p">Hapus Semua</button>
           </div>
           <div class="files-list" id="files-list-w2p"></div>
@@ -97,34 +114,34 @@
             <label class="toggle-switch"><input type="checkbox" id="opt-optimize-print" checked><span class="toggle-slider"></span></label>
             <div class="option-label-group">
               <span class="option-title">Kualitas Cetak 300+ DPI</span>
-              <span class="option-desc">Gambar tidak dikompresi</span>
+              <span class="option-desc">Mempertahankan resolusi asli gambar</span>
             </div>
           </div>
           <div class="option-item">
             <label class="toggle-switch"><input type="checkbox" id="opt-preserve-fonts" checked><span class="toggle-slider"></span></label>
             <div class="option-label-group">
-              <span class="option-title">Font Vektor</span>
-              <span class="option-desc">Teks tajam di semua zoom</span>
+              <span class="option-title">Font Vektor Presisi</span>
+              <span class="option-desc">Teks tetap tajam di semua tingkat zoom</span>
             </div>
           </div>
           <div class="option-item">
             <label class="toggle-switch"><input type="checkbox" id="opt-bookmarks" checked><span class="toggle-slider"></span></label>
             <div class="option-label-group">
-              <span class="option-title">Bookmark PDF</span>
-              <span class="option-desc">Daftar isi interaktif</span>
+              <span class="option-title">Bookmark PDF Interaktif</span>
+              <span class="option-desc">Otomatis buat navigasi daftar isi</span>
             </div>
           </div>
         </div>
 
-        <!-- Convert -->
+        <!-- Convert Action Button -->
         <div class="action-footer">
           <button type="button" class="btn btn-primary btn-lg" id="convert-btn-w2p" disabled>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
-            <span id="convert-btn-text-w2p">Konversi ke PDF</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+            <span id="convert-btn-text-w2p">Mulai Konversi ke HD PDF</span>
           </button>
         </div>
 
-        <!-- Progress -->
+        <!-- Progress Indicator -->
         <div class="progress-container" id="progress-container-w2p" style="display:none;">
           <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-bar-fill-w2p"></div></div>
           <div class="progress-status-row">
@@ -134,25 +151,25 @@
         </div>
       </section>
 
-      <!-- Results W2P -->
-      <section class="card results-card" id="results-card-w2p" style="display:none;">
+      <!-- Results Section -->
+      <section class="card results-card" id="results-card-w2p" style="display:none; margin-top: 24px;">
         <div class="results-header">
           <div class="results-title-group">
             <div class="success-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <div>
-              <h3 class="results-title">Selesai</h3>
+              <h3 class="results-title">Konversi Selesai</h3>
               <p class="results-subtitle" id="results-subtitle-w2p"></p>
             </div>
           </div>
           <div class="results-actions">
             <button type="button" class="btn btn-secondary" id="open-folder-btn">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
               Buka Folder
             </button>
             <a href="#" class="btn btn-primary" id="download-zip-btn-w2p" style="display:none;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Unduh ZIP
             </a>
           </div>
@@ -169,40 +186,50 @@
     <div id="panel-pdf-to-word" role="tabpanel" aria-labelledby="tab-pdf-to-word" style="display:none;">
 
       <section class="hero-section">
-        <h2 class="hero-title">PDF ke <span class="accent-text">Word</span></h2>
-        <p class="hero-desc">Buka PDF via Microsoft Word lalu simpan sebagai dokumen yang dapat diedit.</p>
+        <h2 class="hero-title">PDF ke <span class="accent-text" style="background: var(--grad-pdf); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Word Editable</span></h2>
+        <p class="hero-desc">Buka dan ubah PDF menjadi dokumen Word yang dapat diedit langsung via Microsoft Word Reflow.</p>
+        <div class="hero-badges-row">
+          <span class="hero-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Native Reflow Technology
+          </span>
+          <span class="hero-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Maintain Layout &amp; Text
+          </span>
+        </div>
       </section>
 
-      <section class="card">
+      <section class="card" style="margin-top: 20px;">
         <!-- Drop Zone -->
         <div class="drop-zone" id="drop-zone-p2w">
           <input type="file" id="file-input-p2w" multiple accept=".pdf" class="file-input-hidden">
           <div class="drop-zone-content">
             <div class="drop-icon-wrapper drop-icon-wrapper--pdf">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
             </div>
             <h3 class="drop-zone-title">Tarik file PDF ke sini</h3>
-            <p class="drop-zone-subtitle"><code>.pdf</code> &bull; Batch didukung</p>
-            <button type="button" class="btn btn-secondary" id="browse-btn-p2w">Pilih File</button>
+            <p class="drop-zone-subtitle">Mendukung file <code>.pdf</code> &bull; Batch multiple files</p>
+            <button type="button" class="btn btn-secondary" id="browse-btn-p2w">Pilih Berkas PDF</button>
           </div>
         </div>
 
         <!-- File List -->
         <div class="selected-files-section" id="selected-files-section-p2w" style="display:none;">
           <div class="section-header-inline">
-            <h4 class="section-title">Dipilih (<span id="file-count-p2w">0</span>)</h4>
+            <h4 class="section-title">Berkas Terpilih (<span id="file-count-p2w">0</span>)</h4>
             <button type="button" class="btn-text text-danger" id="clear-all-btn-p2w">Hapus Semua</button>
           </div>
           <div class="files-list" id="files-list-p2w"></div>
         </div>
 
-        <!-- Output Format -->
+        <!-- Output Format Options -->
         <div class="options-bar">
           <div class="option-item option-item--format">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="var(--text-secondary)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #818cf8;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
             <div class="option-label-group">
-              <span class="option-title">Format Output</span>
-              <span class="option-desc">Pilih format dokumen Word</span>
+              <span class="option-title">Format Output Word</span>
+              <span class="option-desc">Pilih format dokumen Word yang diinginkan</span>
             </div>
             <div class="format-select-group" id="format-select-group">
               <label class="format-option format-option--active">
@@ -217,16 +244,16 @@
           </div>
           <div class="option-item">
             <div class="notice-inline">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              <span>PDF berbasis teks menghasilkan hasil terbaik. PDF scan mungkin tidak rapi.</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>PDF berbasis teks digital menghasilkan hasil paling rapi. PDF hasil scan dapat sedikit berbeda layoutnya.</span>
             </div>
           </div>
         </div>
 
-        <!-- Convert -->
+        <!-- Convert Button -->
         <div class="action-footer">
-          <button type="button" class="btn btn-primary btn-lg" id="convert-btn-p2w" disabled>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <button type="button" class="btn btn-primary btn-lg" id="convert-btn-p2w" disabled style="background: var(--grad-pdf); border-color: rgba(255,255,255,0.2);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
             <span id="convert-btn-text-p2w">Konversi ke Word</span>
           </button>
         </div>
@@ -242,24 +269,24 @@
       </section>
 
       <!-- Results P2W -->
-      <section class="card results-card" id="results-card-p2w" style="display:none;">
+      <section class="card results-card" id="results-card-p2w" style="display:none; margin-top: 24px;">
         <div class="results-header">
           <div class="results-title-group">
             <div class="success-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <div>
-              <h3 class="results-title">Selesai</h3>
+              <h3 class="results-title">Konversi Selesai</h3>
               <p class="results-subtitle" id="results-subtitle-p2w"></p>
             </div>
           </div>
           <div class="results-actions">
             <button type="button" class="btn btn-secondary" id="open-folder-btn-p2w">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
               Buka Folder
             </button>
             <a href="#" class="btn btn-primary" id="download-zip-btn-p2w" style="display:none;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Unduh ZIP
             </a>
           </div>
@@ -276,28 +303,38 @@
     <div id="panel-merge-pdf" role="tabpanel" aria-labelledby="tab-merge-pdf" style="display:none;">
 
       <section class="hero-section">
-        <h2 class="hero-title">Gabungkan Beberapa <span class="accent-text">PDF</span></h2>
-        <p class="hero-desc">Satukan dokumen-dokumen PDF menjadi satu berkas lengkap dengan urutan halaman yang fleksibel.</p>
+        <h2 class="hero-title">Gabungkan File <span class="accent-text" style="background: var(--grad-merge); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">PDF Seamless</span></h2>
+        <p class="hero-desc">Satukan beberapa dokumen PDF menjadi satu berkas lengkap dengan urutan file yang bebas diatur.</p>
+        <div class="hero-badges-row">
+          <span class="hero-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Reorder Position Easily
+          </span>
+          <span class="hero-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Lossless PDF Stacking
+          </span>
+        </div>
       </section>
 
-      <section class="card">
+      <section class="card" style="margin-top: 20px;">
         <!-- Drop Zone -->
         <div class="drop-zone" id="drop-zone-merge">
           <input type="file" id="file-input-merge" multiple accept=".pdf" class="file-input-hidden">
           <div class="drop-zone-content">
             <div class="drop-icon-wrapper drop-icon-wrapper--merge">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
             </div>
-            <h3 class="drop-zone-title">Tarik file-file PDF ke sini</h3>
-            <p class="drop-zone-subtitle">Pilih minimal 2 file &bull; Dapat diatur urutannya</p>
-            <button type="button" class="btn btn-secondary" id="browse-btn-merge">Pilih File PDF</button>
+            <h3 class="drop-zone-title">Tarik berkas PDF ke sini</h3>
+            <p class="drop-zone-subtitle">Pilih minimal 2 file PDF &bull; Urutan dapat disesuaikan</p>
+            <button type="button" class="btn btn-secondary" id="browse-btn-merge">Pilih Berkas PDF</button>
           </div>
         </div>
 
         <!-- File List -->
         <div class="selected-files-section" id="selected-files-section-merge" style="display:none;">
           <div class="section-header-inline">
-            <h4 class="section-title">Urutan File (<span id="file-count-merge">0</span>)</h4>
+            <h4 class="section-title">Urutan Penggabungan (<span id="file-count-merge">0</span>)</h4>
             <button type="button" class="btn-text text-danger" id="clear-all-btn-merge">Hapus Semua</button>
           </div>
           <div class="files-list" id="files-list-merge"></div>
@@ -307,23 +344,23 @@
         <div class="options-bar">
           <div class="option-item" style="flex: 1.5;">
             <div class="option-label-group" style="width: 100%;">
-              <span class="option-title">Nama File PDF Gabungan</span>
-              <span class="option-desc" style="margin-bottom: 6px;">Tentukan nama file hasil penggabungan</span>
+              <span class="option-title">Nama Dokumen Hasil</span>
+              <span class="option-desc" style="margin-bottom: 8px;">Tentukan nama file PDF gabungan</span>
               <input type="text" id="output-name-merge" class="form-input" placeholder="merged_document.pdf" value="merged_document.pdf">
             </div>
           </div>
           <div class="option-item">
             <div class="notice-inline">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              <span>Gunakan tombol ⬆️ dan ⬇️ pada daftar file untuk mengatur urutan halaman gabungan.</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>Gunakan tombol ⬆️ dan ⬇️ pada daftar untuk memindahkan urutan halaman.</span>
             </div>
           </div>
         </div>
 
-        <!-- Action -->
+        <!-- Action Button -->
         <div class="action-footer">
-          <button type="button" class="btn btn-primary btn-lg" id="convert-btn-merge" disabled>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+          <button type="button" class="btn btn-primary btn-lg" id="convert-btn-merge" disabled style="background: var(--grad-merge); border-color: rgba(255,255,255,0.2);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
             <span id="convert-btn-text-merge">Gabungkan Semua PDF</span>
           </button>
         </div>
@@ -339,24 +376,24 @@
       </section>
 
       <!-- Results Merge -->
-      <section class="card results-card" id="results-card-merge" style="display:none;">
+      <section class="card results-card" id="results-card-merge" style="display:none; margin-top: 24px;">
         <div class="results-header">
           <div class="results-title-group">
             <div class="success-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <div>
-              <h3 class="results-title">Selesai Digabung!</h3>
+              <h3 class="results-title">Gabung PDF Selesai!</h3>
               <p class="results-subtitle" id="results-subtitle-merge"></p>
             </div>
           </div>
           <div class="results-actions">
             <button type="button" class="btn btn-secondary" id="open-folder-btn-merge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
               Buka Folder
             </button>
-            <a href="#" class="btn btn-primary" id="download-btn-merge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <a href="#" class="btn btn-primary" id="download-btn-merge" style="background: var(--grad-merge);">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Unduh Hasil PDF
             </a>
           </div>
@@ -372,42 +409,52 @@
     <div id="panel-split-pdf" role="tabpanel" aria-labelledby="tab-split-pdf" style="display:none;">
 
       <section class="hero-section">
-        <h2 class="hero-title">Pisahkan Halaman <span class="accent-text">PDF</span></h2>
-        <p class="hero-desc">Ekstrak rentang halaman spesifik atau pisahkan setiap halaman PDF menjadi berkas individual.</p>
+        <h2 class="hero-title">Pisahkan Halaman <span class="accent-text" style="background: var(--grad-split); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">PDF Precision</span></h2>
+        <p class="hero-desc">Ekstrak halaman spesifik (misal: 1-3, 5) atau pisahkan setiap halaman menjadi berkas terpisah secara instan.</p>
+        <div class="hero-badges-row">
+          <span class="hero-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Page Range Extractor
+          </span>
+          <span class="hero-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Single Click ZIP Export
+          </span>
+        </div>
       </section>
 
-      <section class="card">
+      <section class="card" style="margin-top: 20px;">
         <!-- Drop Zone -->
         <div class="drop-zone" id="drop-zone-split">
           <input type="file" id="file-input-split" accept=".pdf" class="file-input-hidden">
           <div class="drop-zone-content">
             <div class="drop-icon-wrapper drop-icon-wrapper--split">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
             </div>
             <h3 class="drop-zone-title">Tarik 1 file PDF ke sini</h3>
-            <p class="drop-zone-subtitle">Pilih file PDF yang ingin dipisah</p>
+            <p class="drop-zone-subtitle">Pilih file PDF yang ingin diekstrak atau dipisah</p>
             <button type="button" class="btn btn-secondary" id="browse-btn-split">Pilih File PDF</button>
           </div>
         </div>
 
-        <!-- File Selected Details & Page Count -->
+        <!-- Selected File Banner -->
         <div class="selected-files-section" id="selected-files-section-split" style="display:none;">
           <div class="section-header-inline">
-            <h4 class="section-title">File Terpilih</h4>
+            <h4 class="section-title">Berkas Terpilih</h4>
             <button type="button" class="btn-text text-danger" id="clear-btn-split">Ganti File</button>
           </div>
           <div class="file-item">
             <div class="file-info">
-              <div class="file-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3);">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              <div class="file-icon" style="color: #fbbf24; background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
               </div>
               <div class="file-text">
                 <div class="file-name" id="split-filename-display">dokumen.pdf</div>
-                <div class="file-meta" id="split-filemeta-display">Memeriksa halaman...</div>
+                <div class="file-meta" id="split-filemeta-display">Memeriksa jumlah halaman...</div>
               </div>
             </div>
             <div class="pages-chip" id="split-pages-badge">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
               <span id="split-pages-count-text">0 Halaman</span>
             </div>
           </div>
@@ -415,12 +462,12 @@
 
         <!-- Options: Mode Split -->
         <div class="options-bar" id="split-options-bar" style="display:none;">
-          <div class="option-item" style="flex-direction: column; gap: 8px;">
+          <div class="option-item" style="flex-direction: column; gap: 10px;">
             <div class="option-title">Mode Pemisahan</div>
             <div class="format-select-group" id="split-mode-select-group" style="width: 100%; display: flex; gap: 8px;">
               <label class="format-option format-option--active" id="split-mode-range-label" style="flex: 1; text-align: center;">
                 <input type="radio" name="split-mode" value="range" checked hidden>
-                <span>Ekstrak Rentang Halaman</span>
+                <span>Ekstrak Halaman Specific</span>
               </label>
               <label class="format-option" id="split-mode-all-label" style="flex: 1; text-align: center;">
                 <input type="radio" name="split-mode" value="all" hidden>
@@ -432,16 +479,16 @@
           <div class="option-item" id="split-range-input-wrapper">
             <div class="option-label-group" style="width: 100%;">
               <span class="option-title">Tentukan Nomor / Rentang Halaman</span>
-              <span class="option-desc" style="margin-bottom: 6px;">Contoh: <code>1-3, 5, 8-10</code> atau <code>1, 4</code></span>
+              <span class="option-desc" style="margin-bottom: 8px;">Contoh format: <code>1-3, 5, 8-10</code></span>
               <input type="text" id="split-range-input" class="form-input" placeholder="Misal: 1-3, 5">
             </div>
           </div>
         </div>
 
-        <!-- Action -->
+        <!-- Action Button -->
         <div class="action-footer">
-          <button type="button" class="btn btn-primary btn-lg" id="convert-btn-split" disabled>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
+          <button type="button" class="btn btn-primary btn-lg" id="convert-btn-split" disabled style="background: var(--grad-split); border-color: rgba(255,255,255,0.2);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
             <span id="convert-btn-text-split">Mulai Pisahkan PDF</span>
           </button>
         </div>
@@ -457,11 +504,11 @@
       </section>
 
       <!-- Results Split -->
-      <section class="card results-card" id="results-card-split" style="display:none;">
+      <section class="card results-card" id="results-card-split" style="display:none; margin-top: 24px;">
         <div class="results-header">
           <div class="results-title-group">
             <div class="success-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <div>
               <h3 class="results-title">Pemisahan Selesai!</h3>
@@ -470,11 +517,11 @@
           </div>
           <div class="results-actions">
             <button type="button" class="btn btn-secondary" id="open-folder-btn-split">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
               Buka Folder
             </button>
-            <a href="#" class="btn btn-primary" id="download-btn-split">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <a href="#" class="btn btn-primary" id="download-btn-split" style="background: var(--grad-split);">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               <span id="download-btn-text-split">Unduh Hasil</span>
             </a>
           </div>
@@ -490,28 +537,38 @@
     <div id="panel-image-to-pdf" role="tabpanel" aria-labelledby="tab-image-to-pdf" style="display:none;">
 
       <section class="hero-section">
-        <h2 class="hero-title">Gambar ke <span class="accent-text">PDF HD</span></h2>
-        <p class="hero-desc">Gabungkan foto atau scan (JPG, PNG, WEBP, BMP) menjadi dokumen PDF berkualitas tinggi tanpa buram.</p>
+        <h2 class="hero-title">Gambar ke <span class="accent-text" style="background: var(--grad-image); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">PDF Ultra-HD</span></h2>
+        <p class="hero-desc">Gabungkan koleksi foto, dokumen scan (JPG, PNG, WEBP) menjadi dokumen PDF resmi tanpa penurunan mutu visual.</p>
+        <div class="hero-badges-row">
+          <span class="hero-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Auto Aspect Fit &amp; A4 Support
+          </span>
+          <span class="hero-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            PNG / JPG / WEBP / BMP
+          </span>
+        </div>
       </section>
 
-      <section class="card">
+      <section class="card" style="margin-top: 20px;">
         <!-- Drop Zone -->
         <div class="drop-zone" id="drop-zone-img">
           <input type="file" id="file-input-img" multiple accept=".jpg,.jpeg,.png,.webp,.bmp,.tiff" class="file-input-hidden">
           <div class="drop-zone-content">
             <div class="drop-icon-wrapper drop-icon-wrapper--image">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
             </div>
-            <h3 class="drop-zone-title">Tarik file gambar ke sini</h3>
-            <p class="drop-zone-subtitle">JPG &bull; PNG &bull; WEBP &bull; BMP &bull; Banyak gambar didukung</p>
-            <button type="button" class="btn btn-secondary" id="browse-btn-img">Pilih Berkas Gambar</button>
+            <h3 class="drop-zone-title">Tarik berkas gambar ke sini</h3>
+            <p class="drop-zone-subtitle">Mendukung <code>JPG</code> &bull; <code>PNG</code> &bull; <code>WEBP</code> &bull; <code>BMP</code></p>
+            <button type="button" class="btn btn-secondary" id="browse-btn-img">Pilih Gambar</button>
           </div>
         </div>
 
         <!-- File List -->
         <div class="selected-files-section" id="selected-files-section-img" style="display:none;">
           <div class="section-header-inline">
-            <h4 class="section-title">Urutan Gambar (<span id="file-count-img">0</span>)</h4>
+            <h4 class="section-title">Urutan Gambar Halaman (<span id="file-count-img">0</span>)</h4>
             <button type="button" class="btn-text text-danger" id="clear-all-btn-img">Hapus Semua</button>
           </div>
           <div class="files-list" id="files-list-img"></div>
@@ -521,8 +578,8 @@
         <div class="options-bar">
           <div class="option-item">
             <div class="option-label-group" style="width: 100%;">
-              <span class="option-title">Tata Letak Halaman</span>
-              <span class="option-desc" style="margin-bottom: 6px;">Pilih proporsi kertas PDF</span>
+              <span class="option-title">Ukuran &amp; Layout Halaman</span>
+              <span class="option-desc" style="margin-bottom: 8px;">Pilih proporsi kertas PDF</span>
               <div class="format-select-group" id="img-pagesize-select-group" style="display: flex; gap: 8px;">
                 <label class="format-option format-option--active" id="pagesize-fit-label" style="flex: 1; text-align: center;">
                   <input type="radio" name="image-pagesize" value="fit" checked hidden>
@@ -539,16 +596,16 @@
           <div class="option-item">
             <div class="option-label-group" style="width: 100%;">
               <span class="option-title">Nama File PDF Output</span>
-              <span class="option-desc" style="margin-bottom: 6px;">Nama dokumen PDF hasil</span>
+              <span class="option-desc" style="margin-bottom: 8px;">Nama dokumen hasil penggabungan</span>
               <input type="text" id="output-name-img" class="form-input" placeholder="images_document.pdf" value="images_document.pdf">
             </div>
           </div>
         </div>
 
-        <!-- Action -->
+        <!-- Action Button -->
         <div class="action-footer">
-          <button type="button" class="btn btn-primary btn-lg" id="convert-btn-img" disabled>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+          <button type="button" class="btn btn-primary btn-lg" id="convert-btn-img" disabled style="background: var(--grad-image); border-color: rgba(255,255,255,0.2);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
             <span id="convert-btn-text-img">Konversi Gambar ke PDF</span>
           </button>
         </div>
@@ -564,11 +621,11 @@
       </section>
 
       <!-- Results Image -->
-      <section class="card results-card" id="results-card-img" style="display:none;">
+      <section class="card results-card" id="results-card-img" style="display:none; margin-top: 24px;">
         <div class="results-header">
           <div class="results-title-group">
             <div class="success-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <div>
               <h3 class="results-title">Selesai Dibuat!</h3>
@@ -577,11 +634,11 @@
           </div>
           <div class="results-actions">
             <button type="button" class="btn btn-secondary" id="open-folder-btn-img">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
               Buka Folder
             </button>
-            <a href="#" class="btn btn-primary" id="download-btn-img">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <a href="#" class="btn btn-primary" id="download-btn-img" style="background: var(--grad-image);">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Unduh PDF Gambar
             </a>
           </div>
@@ -593,7 +650,7 @@
   </main>
 
   <footer class="main-footer">
-    <p>HD Document &amp; PDF Suite &bull; Word ↔ PDF &bull; Merge &bull; Split &bull; Image ke PDF &bull; 100% Lokal &amp; Privat</p>
+    <p>HD Document &amp; PDF Suite &bull; Executive Local Edition &bull; Powered by Native Microsoft Word COM &bull; 100% Offline &amp; Private</p>
   </footer>
 
 </div>
