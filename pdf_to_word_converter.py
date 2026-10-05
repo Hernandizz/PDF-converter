@@ -1,19 +1,14 @@
 """
 PDF to Word Converter Engine
 ==============================
-Engine konversi PDF ke DOCX menggunakan Word COM Automation (Windows).
-Strategi: Buka PDF langsung via Microsoft Word (built-in PDF reader),
-kemudian Save As ke format DOCX — mempertahankan layout, teks, dan gambar
-semaksimal mungkin sesuai kemampuan Word.
-
-Catatan:
-- Membutuhkan Microsoft Word yang terinstal (Word 2013+, direkomendasikan Word 2019/365).
-- Word 2013+ mendukung membuka dan mengedit PDF secara native (PDF Reflow).
-- Tidak bergantung pada library pihak ketiga berbayar.
+Engine konversi PDF ke DOCX menggunakan pdf2docx (High Performance Multi-Core)
+dengan Fallback ke Microsoft Word COM Automation (Windows).
 """
 
 import os
+import sys
 import threading
+import concurrent.futures
 from typing import Optional, Dict, Any
 
 try:
@@ -47,9 +42,23 @@ class PdfToWordError(Exception):
 pdf_word_lock = threading.Lock()
 
 
+def _run_with_timeout(func, args=(), kwargs=None, timeout_seconds=90):
+    """Helper untuk menjalankan fungsi dengan batas waktu ketat agar tidak hanging/stuck."""
+    if kwargs is None:
+        kwargs = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(func, *args, **kwargs)
+        try:
+            return future.result(timeout=timeout_seconds)
+        except concurrent.futures.TimeoutError:
+            raise PdfToWordError(
+                f"Proses konversi melebihi batas waktu ({timeout_seconds} detik). File PDF mungkin terlalu besar atau memiliki struktur tabel kompleks."
+            )
+
+
 class PdfToWordConverter:
     """
-    Konverter PDF ke DOCX via pdf2docx (High Performance Native Python)
+    Konverter PDF ke DOCX via pdf2docx (Parallel Multi-Core Engine)
     atau Microsoft Word COM Automation sebagai Fallback.
     """
 
@@ -97,17 +106,25 @@ class PdfToWordConverter:
             except OSError as e:
                 raise PdfToWordError(f"Tidak dapat menimpa file Word yang sedang dibuka: {e}")
 
-        # OPSI 1: Gunakan pdf2docx jika tersedia dan output adalah DOCX (Sangat Cepat & Tanpa Word)
+        # OPSI 1: Gunakan pdf2docx dengan Multi-Core Acceleration jika output adalah DOCX
         if PDF2DOCX_AVAILABLE and fmt == 'docx':
-            try:
+            def _convert_pdf2docx():
                 cv = Pdf2DocxConverter(input_abs)
-                cv.convert(output_abs, start=0, end=None)
-                cv.close()
+                cpu_cnt = max(1, (os.cpu_count() or 2) - 1)
+                try:
+                    cv.convert(output_abs, start=0, end=None, multi_processing=True, cpu_count=cpu_cnt)
+                except TypeError:
+                    # Fallback jika versi pdf2docx lama tidak mendukung cpu_count
+                    cv.convert(output_abs, start=0, end=None)
+                finally:
+                    cv.close()
 
+            try:
+                _run_with_timeout(_convert_pdf2docx, timeout_seconds=90)
                 if os.path.exists(output_abs) and os.path.getsize(output_abs) > 0:
                     return output_abs
             except Exception as e:
-                # Jika pdf2docx gagal (misal font khusus), coba fallback ke MS Word COM
+                # Jika pdf2docx gagal atau timeout, lanjut mencoba MS Word COM Fallback...
                 pass
 
         # OPSI 2: Fallback ke MS Word COM Automation via WordAppManager
@@ -119,44 +136,46 @@ class PdfToWordConverter:
         word_format = WD_FORMAT_DOCUMENT_DEFAULT if fmt == 'docx' else WD_FORMAT_DOCUMENT_97
         manager = WordAppManager.get_instance()
 
-        with pdf_word_lock:
-            word_app = manager.acquire_app()
-            doc = None
-            try:
-                doc = word_app.Documents.Open(
-                    FileName=input_abs,
-                    ConfirmConversions=False,
-                    ReadOnly=False,
-                    AddToRecentFiles=False,
-                    Visible=False
-                )
+        def _convert_word_com():
+            with pdf_word_lock:
+                word_app = manager.acquire_app()
+                doc = None
+                try:
+                    doc = word_app.Documents.Open(
+                        FileName=input_abs,
+                        ConfirmConversions=False,
+                        ReadOnly=True,
+                        AddToRecentFiles=False,
+                        Visible=False
+                    )
 
-                doc.SaveAs2(
-                    FileName=output_abs,
-                    FileFormat=word_format,
-                    AddToRecentFiles=False,
-                )
+                    doc.SaveAs2(
+                        FileName=output_abs,
+                        FileFormat=word_format,
+                        AddToRecentFiles=False,
+                    )
 
-                if not os.path.exists(output_abs) or os.path.getsize(output_abs) == 0:
-                    raise PdfToWordError("Gagal menghasilkan file DOCX (file kosong atau tidak terbentuk).")
+                    if not os.path.exists(output_abs) or os.path.getsize(output_abs) == 0:
+                        raise PdfToWordError("Gagal menghasilkan file DOCX (file kosong atau tidak terbentuk).")
 
-                return output_abs
+                    return output_abs
 
-            except PdfToWordError:
-                raise
-            except Exception as e:
-                raise PdfToWordError(f"Gagal mengonversi '{os.path.basename(input_pdf_path)}': {str(e)}")
-            finally:
-                if doc:
-                    try:
-                        doc.Close(SaveChanges=WD_DO_NOT_SAVE_CHANGES)
-                    except Exception:
-                        pass
+                except PdfToWordError:
+                    raise
+                except Exception as e:
+                    raise PdfToWordError(f"Gagal mengonversi '{os.path.basename(input_pdf_path)}': {str(e)}")
+                finally:
+                    if doc:
+                        try:
+                            doc.Close(SaveChanges=WD_DO_NOT_SAVE_CHANGES)
+                        except Exception:
+                            pass
+
+        return _run_with_timeout(_convert_word_com, timeout_seconds=75)
 
     def get_pdf_info(self, pdf_path: str) -> Dict[str, Any]:
         """
         Mengambil informasi dasar file PDF (ukuran, nama).
-        Tidak membutuhkan library tambahan.
         """
         abs_path = os.path.abspath(pdf_path)
         info: Dict[str, Any] = {

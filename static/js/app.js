@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
       progressCont.style.display = 'flex';
       convertBtn.disabled = true;
       convertBtnTxt.textContent = convertingLabel;
-      setProgress(10, 'Mengunggah dan menyiapkan engine konversi...');
+      setProgress(5, 'Mengunggah dan menyiapkan engine konversi...');
 
       const formData = new FormData();
       selectedFiles.forEach(f => formData.append('files', f));
@@ -261,21 +261,41 @@ document.addEventListener('DOMContentLoaded', () => {
         extraFormDataFn(formData);
       }
 
-      // Simulated progress ticker
-      let pct = 10;
+      // Dynamic progress ticker that never freezes hard at 85%
+      let pct = 5;
       const ticker = setInterval(() => {
-        if (pct < 85) {
-          pct += Math.floor(Math.random() * 7) + 2;
-          if (pct > 85) pct = 85;
-          let msg = 'Memproses dokumen dengan Word Engine...';
-          if (pct > 40 && pct < 70) msg = 'Engine sedang merender dan menyusun konten...';
-          else if (pct >= 70) msg = 'Menyempurnakan dan menyimpan file hasil...';
-          setProgress(pct, msg);
+        if (pct < 60) {
+          pct += Math.floor(Math.random() * 6) + 3;
+        } else if (pct < 85) {
+          pct += Math.floor(Math.random() * 4) + 1;
+        } else if (pct < 96) {
+          // Crawl slowly past 85% up to 96% so the user knows process is active
+          pct += 1;
         }
+
+        if (pct > 96) pct = 96;
+
+        let msg = 'Memproses dokumen dengan Engine...';
+        if (pct >= 10 && pct < 40) msg = 'Menganalisis struktur dan elemen dokumen...';
+        else if (pct >= 40 && pct < 70) msg = 'Engine sedang merender dan menyusun halaman...';
+        else if (pct >= 70 && pct < 88) msg = 'Menyusun teks, tabel, dan gambar...';
+        else if (pct >= 88) msg = 'Memfinalisasi dan menyimpan file hasil (mohon tunggu)...';
+
+        setProgress(pct, msg);
       }, 500);
 
+      // Client-side AbortController timeout (120 seconds max)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000);
+
       try {
-        const response = await fetch(apiEndpoint, { method: 'POST', body: formData });
+        const response = await fetch(apiEndpoint, {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
         clearInterval(ticker);
         const data = await response.json();
 
@@ -283,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error(
             data.error ||
             (data.errors && data.errors[0]?.error) ||
-            'Konversi gagal — tidak ada file berhasil diproses.'
+            'Konversi gagal — tidak ada file yang berhasil diproses.'
           );
         }
 
@@ -297,11 +317,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 400);
 
       } catch (err) {
+        clearTimeout(timeoutId);
         clearInterval(ticker);
         progressCont.style.display = 'none';
         convertBtn.disabled = false;
         convertBtnTxt.textContent = `${defaultBtnLabel} (${selectedFiles.length} File)`;
-        alert('Terjadi kesalahan:\n' + err.message);
+
+        if (err.name === 'AbortError') {
+          alert('Konversi dibatalkan (Timeout 120 detik):\nProses memakan waktu terlalu lama. File dokumen Anda mungkin sangat besar atau terkunci.');
+        } else {
+          alert('Terjadi kesalahan konversi:\n' + err.message);
+        }
       }
     });
 
