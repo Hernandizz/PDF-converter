@@ -223,14 +223,27 @@ class HDWordToPdfConverter:
             except OSError as e:
                 raise WordConverterError(f"Tidak dapat menimpa file PDF yang sedang dibuka: {e}")
 
-        manager = WordAppManager.get_instance()
+        if not COMTYPES_AVAILABLE:
+            raise WordConverterError("Modul 'comtypes' tidak ditemukan. Jalankan: pip install comtypes")
 
         def _do_convert():
             with word_lock:
-                word_app = manager.acquire_app()
+                comtypes.CoInitialize()
+                word_app = None
                 doc = None
                 try:
-                    # Buka dokumen dalam mode ReadOnly
+                    word_app = comtypes.client.CreateObject("Word.Application")
+                    word_app.Visible = False
+                    word_app.DisplayAlerts = WD_ALERTS_NONE
+                    try:
+                        word_app.ScreenUpdating = False
+                        word_app.Options.DoNotPromptForConvert = True
+                        word_app.Options.SaveInterval = 0
+                        word_app.Options.UpdateLinksAtOpen = False
+                        word_app.Options.ConfirmConversions = False
+                    except Exception:
+                        pass
+
                     doc = word_app.Documents.Open(
                         FileName=input_abs,
                         ConfirmConversions=False,
@@ -239,7 +252,6 @@ class HDWordToPdfConverter:
                         Visible=False
                     )
 
-                    # Cegah kompresi gambar otomatis
                     try:
                         doc.DoNotCompressImages = True
                     except Exception:
@@ -254,7 +266,6 @@ class HDWordToPdfConverter:
                         else WD_EXPORT_CREATE_NO_BOOKMARKS
                     )
 
-                    # Ekspor ke PDF dengan setting Lossless / HD
                     doc.ExportAsFixedFormat(
                         OutputFileName=output_abs,
                         ExportFormat=WD_EXPORT_FORMAT_PDF,
@@ -286,12 +297,21 @@ class HDWordToPdfConverter:
                             doc.Close(SaveChanges=WD_DO_NOT_SAVE_CHANGES)
                         except Exception:
                             pass
+                    if word_app:
+                        try:
+                            word_app.Quit()
+                        except Exception:
+                            pass
+                    try:
+                        comtypes.CoUninitialize()
+                    except Exception:
+                        pass
 
         return _run_with_timeout(_do_convert, timeout_seconds=75)
 
     def batch_convert(self, input_paths: List[str], output_dir: Optional[str] = None) -> List[Dict[str, Any]]:
         """
-        Mengonversi banyak file Word sekaligus dalam 1 sesi MS Word.
+        Mengonversi banyak file Word sekaligus.
         """
         results = []
         for path in input_paths:
@@ -318,3 +338,4 @@ class HDWordToPdfConverter:
                 res["error"] = str(e)
             results.append(res)
         return results
+

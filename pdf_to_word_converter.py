@@ -106,16 +106,12 @@ class PdfToWordConverter:
             except OSError as e:
                 raise PdfToWordError(f"Tidak dapat menimpa file Word yang sedang dibuka: {e}")
 
-        # OPSI 1: Gunakan pdf2docx dengan Multi-Core Acceleration jika output adalah DOCX
+        # OPSI 1: Gunakan pdf2docx jika output adalah DOCX
         if PDF2DOCX_AVAILABLE and fmt == 'docx':
             def _convert_pdf2docx():
                 cv = Pdf2DocxConverter(input_abs)
-                cpu_cnt = max(1, (os.cpu_count() or 2) - 1)
                 try:
-                    cv.convert(output_abs, start=0, end=None, multi_processing=True, cpu_count=cpu_cnt)
-                except TypeError:
-                    # Fallback jika versi pdf2docx lama tidak mendukung cpu_count
-                    cv.convert(output_abs, start=0, end=None)
+                    cv.convert(output_abs, start=0, end=None, multi_processing=False)
                 finally:
                     cv.close()
 
@@ -123,24 +119,28 @@ class PdfToWordConverter:
                 _run_with_timeout(_convert_pdf2docx, timeout_seconds=90)
                 if os.path.exists(output_abs) and os.path.getsize(output_abs) > 0:
                     return output_abs
-            except Exception as e:
+            except Exception:
                 # Jika pdf2docx gagal atau timeout, lanjut mencoba MS Word COM Fallback...
                 pass
 
-        # OPSI 2: Fallback ke MS Word COM Automation via WordAppManager
+        # OPSI 2: Fallback ke MS Word COM Automation
         if not COMTYPES_AVAILABLE:
             raise PdfToWordError(
                 "Tidak ada engine konversi PDF ke Word yang tersedia (install pdf2docx atau comtypes)."
             )
 
         word_format = WD_FORMAT_DOCUMENT_DEFAULT if fmt == 'docx' else WD_FORMAT_DOCUMENT_97
-        manager = WordAppManager.get_instance()
 
         def _convert_word_com():
             with pdf_word_lock:
-                word_app = manager.acquire_app()
+                comtypes.CoInitialize()
+                word_app = None
                 doc = None
                 try:
+                    word_app = comtypes.client.CreateObject("Word.Application")
+                    word_app.Visible = False
+                    word_app.DisplayAlerts = WD_ALERTS_NONE
+
                     doc = word_app.Documents.Open(
                         FileName=input_abs,
                         ConfirmConversions=False,
@@ -170,6 +170,15 @@ class PdfToWordConverter:
                             doc.Close(SaveChanges=WD_DO_NOT_SAVE_CHANGES)
                         except Exception:
                             pass
+                    if word_app:
+                        try:
+                            word_app.Quit()
+                        except Exception:
+                            pass
+                    try:
+                        comtypes.CoUninitialize()
+                    except Exception:
+                        pass
 
         return _run_with_timeout(_convert_word_com, timeout_seconds=75)
 
