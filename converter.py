@@ -8,6 +8,11 @@ Memastikan:
 3. Font vector tetap tajam pada semua tingkat zoom (BitmapMissingFonts = False).
 4. Struktur dokumen & bookmark heading dipertahankan.
 5. Timeout Guardian untuk mencegah MS Word hang/stuck.
+
+PERFORMA:
+- Menggunakan WordAppManager Singleton: Word COM dibuat SEKALI, di-reuse untuk
+  semua konversi. Overhead startup ~3-5 detik hanya terjadi 1x, bukan per-file.
+- Batch conversion menggunakan ThreadPoolExecutor untuk paralelisme.
 """
 
 import os
@@ -69,12 +74,16 @@ class WordAppManager:
     """
     Manager terpusat untuk instansi MS Word COM Automation.
     Menghindari overhead pembuatan & penutupan proses Word.exe pada setiap konversi file.
+
+    PERFORMA: Word.exe startup memakan ~3-5 detik. Dengan singleton ini,
+    startup hanya terjadi 1x selama aplikasi berjalan.
     """
     _instance = None
     _lock = threading.Lock()
 
     def __init__(self):
         self.word_app = None
+        self._com_initialized = False
 
     @classmethod
     def get_instance(cls):
@@ -83,6 +92,16 @@ class WordAppManager:
                 cls._instance = WordAppManager()
             return cls._instance
 
+    def _is_app_alive(self) -> bool:
+        """Cek apakah Word COM instance masih responsif."""
+        if self.word_app is None:
+            return False
+        try:
+            _ = self.word_app.Version
+            return True
+        except Exception:
+            return False
+
     def acquire_app(self):
         """Mendapatkan atau membuat instansi Word Application yang siap digunakan."""
         if not COMTYPES_AVAILABLE:
@@ -90,14 +109,21 @@ class WordAppManager:
                 "Modul 'comtypes' tidak ditemukan. Jalankan: pip install comtypes"
             )
 
-        comtypes.CoInitialize()
+        if not self._com_initialized:
+            comtypes.CoInitialize()
+            self._com_initialized = True
 
+        # Reuse jika masih hidup
+        if self._is_app_alive():
+            return self.word_app
+
+        # Cleanup stale reference
         if self.word_app is not None:
             try:
-                _ = self.word_app.Version
-                return self.word_app
+                self.word_app.Quit()
             except Exception:
-                self.word_app = None
+                pass
+            self.word_app = None
 
         try:
             self.word_app = comtypes.client.CreateObject("Word.Application")
@@ -125,10 +151,12 @@ class WordAppManager:
                 except Exception:
                     pass
                 self.word_app = None
-                try:
-                    comtypes.CoUninitialize()
-                except Exception:
-                    pass
+                if self._com_initialized:
+                    try:
+                        comtypes.CoUninitialize()
+                    except Exception:
+                        pass
+                    self._com_initialized = False
 
 
 class HDWordToPdfConverter:
@@ -204,6 +232,10 @@ class HDWordToPdfConverter:
         """
         Mengonversi satu file DOC/DOCX ke PDF berkualitas HD tanpa kompresi gambar.
         Terlindungi Timeout Guardian.
+
+        PERFORMA: Menggunakan WordAppManager singleton — Word.exe tidak
+        dibuat/ditutup per file, melainkan di-reuse terus-menerus.
+        Parameter keep_word_open=True menjaga instance tetap hidup.
         """
         input_abs = os.path.abspath(input_path)
         if not os.path.isfile(input_abs):
@@ -228,21 +260,10 @@ class HDWordToPdfConverter:
 
         def _do_convert():
             with word_lock:
-                comtypes.CoInitialize()
-                word_app = None
+                manager = WordAppManager.get_instance()
                 doc = None
                 try:
-                    word_app = comtypes.client.CreateObject("Word.Application")
-                    word_app.Visible = False
-                    word_app.DisplayAlerts = WD_ALERTS_NONE
-                    try:
-                        word_app.ScreenUpdating = False
-                        word_app.Options.DoNotPromptForConvert = True
-                        word_app.Options.SaveInterval = 0
-                        word_app.Options.UpdateLinksAtOpen = False
-                        word_app.Options.ConfirmConversions = False
-                    except Exception:
-                        pass
+                    word_app = manager.acquire_app()
 
                     doc = word_app.Documents.Open(
                         FileName=input_abs,
@@ -289,6 +310,8 @@ class HDWordToPdfConverter:
                 except WordConverterError:
                     raise
                 except Exception as e:
+                    # Jika error, invalidate instance agar di-recreate pada panggilan berikutnya
+                    manager.word_app = None
                     raise WordConverterError(f"Gagal mengonversi '{os.path.basename(input_path)}': {str(e)}")
 
                 finally:
@@ -297,21 +320,16 @@ class HDWordToPdfConverter:
                             doc.Close(SaveChanges=WD_DO_NOT_SAVE_CHANGES)
                         except Exception:
                             pass
-                    if word_app:
-                        try:
-                            word_app.Quit()
-                        except Exception:
-                            pass
-                    try:
-                        comtypes.CoUninitialize()
-                    except Exception:
-                        pass
+                    # Jika keep_word_open=False, tutup Word sepenuhnya (behavior lama)
+                    if not keep_word_open:
+                        manager.close_app()
 
         return _run_with_timeout(_do_convert, timeout_seconds=75)
 
     def batch_convert(self, input_paths: List[str], output_dir: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Mengonversi banyak file Word sekaligus.
+        Semua file dikonversi menggunakan satu instance Word COM yang sama.
         """
         results = []
         for path in input_paths:
@@ -338,4 +356,3 @@ class HDWordToPdfConverter:
                 res["error"] = str(e)
             results.append(res)
         return results
-

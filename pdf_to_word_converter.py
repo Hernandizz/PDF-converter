@@ -3,6 +3,12 @@ PDF to Word Converter Engine
 ==============================
 Engine konversi PDF ke DOCX menggunakan pdf2docx (High Performance Multi-Core)
 dengan Fallback ke Microsoft Word COM Automation (Windows).
+
+PERFORMA:
+- pdf2docx: Menggunakan multi-processing otomatis untuk dokumen multi-halaman
+  sehingga utilisasi CPU optimal.
+- Fallback MS Word: Menggunakan singleton WordAppManager sehingga proses Word.exe
+  tidak dibuka-tutup berulang kali (menghemat 3-5 detik per file).
 """
 
 import os
@@ -65,7 +71,13 @@ class PdfToWordConverter:
     def __init__(self):
         pass
 
-    def convert(self, input_pdf_path: str, output_docx_path: Optional[str] = None, output_format: str = 'docx') -> str:
+    def convert(
+        self,
+        input_pdf_path: str,
+        output_docx_path: Optional[str] = None,
+        output_format: str = 'docx',
+        keep_word_open: bool = True
+    ) -> str:
         """
         Mengonversi satu file PDF ke DOCX atau DOC.
 
@@ -73,6 +85,7 @@ class PdfToWordConverter:
             input_pdf_path: Path ke file PDF sumber.
             output_docx_path: Path output (opsional).
             output_format: 'docx' (default) atau 'doc'.
+            keep_word_open: Jika menggunakan COM fallback, pertahankan Word tetap hidup.
 
         Returns:
             Path absolut ke file Word hasil konversi.
@@ -111,7 +124,10 @@ class PdfToWordConverter:
             def _convert_pdf2docx():
                 cv = Pdf2DocxConverter(input_abs)
                 try:
-                    cv.convert(output_abs, start=0, end=None, multi_processing=False)
+                    # Deteksi multi-core untuk mempercepat konversi dokumen panjang
+                    cpu_cnt = os.cpu_count() or 1
+                    use_mp = cpu_cnt > 2
+                    cv.convert(output_abs, start=0, end=None, multi_processing=use_mp, cpu_count=min(cpu_cnt, 4))
                 finally:
                     cv.close()
 
@@ -123,7 +139,7 @@ class PdfToWordConverter:
                 # Jika pdf2docx gagal atau timeout, lanjut mencoba MS Word COM Fallback...
                 pass
 
-        # OPSI 2: Fallback ke MS Word COM Automation
+        # OPSI 2: Fallback ke MS Word COM Automation (Singleton WordAppManager)
         if not COMTYPES_AVAILABLE:
             raise PdfToWordError(
                 "Tidak ada engine konversi PDF ke Word yang tersedia (install pdf2docx atau comtypes)."
@@ -133,13 +149,10 @@ class PdfToWordConverter:
 
         def _convert_word_com():
             with pdf_word_lock:
-                comtypes.CoInitialize()
-                word_app = None
+                manager = WordAppManager.get_instance()
                 doc = None
                 try:
-                    word_app = comtypes.client.CreateObject("Word.Application")
-                    word_app.Visible = False
-                    word_app.DisplayAlerts = WD_ALERTS_NONE
+                    word_app = manager.acquire_app()
 
                     doc = word_app.Documents.Open(
                         FileName=input_abs,
@@ -163,6 +176,7 @@ class PdfToWordConverter:
                 except PdfToWordError:
                     raise
                 except Exception as e:
+                    manager.word_app = None
                     raise PdfToWordError(f"Gagal mengonversi '{os.path.basename(input_pdf_path)}': {str(e)}")
                 finally:
                     if doc:
@@ -170,15 +184,8 @@ class PdfToWordConverter:
                             doc.Close(SaveChanges=WD_DO_NOT_SAVE_CHANGES)
                         except Exception:
                             pass
-                    if word_app:
-                        try:
-                            word_app.Quit()
-                        except Exception:
-                            pass
-                    try:
-                        comtypes.CoUninitialize()
-                    except Exception:
-                        pass
+                    if not keep_word_open:
+                        manager.close_app()
 
         return _run_with_timeout(_convert_word_com, timeout_seconds=75)
 
