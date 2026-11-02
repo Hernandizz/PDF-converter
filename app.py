@@ -8,12 +8,15 @@ Flask web server untuk:
 
 import os
 import sys
+import time
 import shutil
 import zipfile
 import subprocess
+import threading
+import webbrowser
 from flask import Flask, render_template, request, jsonify, send_file
 from werkzeug.utils import secure_filename
-from converter import HDWordToPdfConverter, WordConverterError
+from converter import HDWordToPdfConverter, WordConverterError, WordAppManager
 from pdf_to_word_converter import PdfToWordConverter, PdfToWordError
 from pdf_tools import (
     merge_pdfs,
@@ -24,6 +27,9 @@ from pdf_tools import (
 )
 
 app = Flask(__name__)
+# Optimasi performa web: Cache asset static 24 jam & batas aman payload
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
+app.config['MAX_CONTENT_LENGTH'] = 300 * 1024 * 1024
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
@@ -35,6 +41,44 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 ALLOWED_EXTENSIONS = {".docx", ".doc"}
 ALLOWED_PDF_EXTENSIONS = {".pdf"}
 ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff"}
+
+
+def cleanup_old_files(max_age_seconds: int = 7200):
+    """
+    Membersihkan file sementara di folder uploads dan outputs yang lebih lama dari 2 jam.
+    Mencegah penumpukan file agar disk tetap ringan dan bersih.
+    """
+    now = time.time()
+    for folder in [UPLOAD_FOLDER, OUTPUT_FOLDER]:
+        if not os.path.isdir(folder):
+            continue
+        try:
+            for fname in os.listdir(folder):
+                fpath = os.path.join(folder, fname)
+                if os.path.isfile(fpath):
+                    try:
+                        if now - os.path.getmtime(fpath) > max_age_seconds:
+                            os.remove(fpath)
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+
+def _background_housekeeping():
+    """Tugas pemeliharaan latar belakang: bersihkan file lama & tutup Word jika idle."""
+    while True:
+        time.sleep(120)  # Setiap 2 menit
+        try:
+            cleanup_old_files(max_age_seconds=7200)
+            WordAppManager.get_instance().check_idle_cleanup(max_idle_seconds=300)
+        except Exception:
+            pass
+
+
+# Jalankan housekeeping di daemon thread
+_hk_thread = threading.Thread(target=_background_housekeeping, daemon=True)
+_hk_thread.start()
 
 
 def is_allowed_file(filename: str) -> bool:
@@ -161,13 +205,13 @@ def convert_files():
                 except Exception:
                     pass
 
-    # Jika banyak file berhasil dikonversi, buat file ZIP batch
+    # Jika banyak file berhasil dikonversi, buat file ZIP batch dengan level kompresi 1 (cepat & ringan)
     zip_url = None
     if len(converted_files) > 1:
         zip_filename = "converted_pdfs_hd.zip"
         zip_path = os.path.join(OUTPUT_FOLDER, zip_filename)
         try:
-            with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=1) as zf:
                 for item in converted_files:
                     fpath = os.path.join(OUTPUT_FOLDER, item["pdf_name"])
                     if os.path.exists(fpath):
@@ -245,13 +289,13 @@ def pdf_to_word():
                 except Exception:
                     pass
 
-    # Buat ZIP jika ada lebih dari satu file
+    # Buat ZIP jika ada lebih dari satu file (compresslevel=1 untuk responsivitas instan)
     zip_url = None
     if len(converted_files) > 1:
         zip_filename = f"converted_words.zip"
         zip_path = os.path.join(OUTPUT_FOLDER, zip_filename)
         try:
-            with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=1) as zf:
                 for item in converted_files:
                     fpath = os.path.join(OUTPUT_FOLDER, item["word_name"])
                     if os.path.exists(fpath):
@@ -487,12 +531,40 @@ def open_folder():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route("/api/clean-temp", methods=["POST"])
+def clean_temp_endpoint():
+    """
+    Endpoint pembersihan manual untuk mengosongkan file sementara di uploads & outputs.
+    """
+    try:
+        cleanup_old_files(max_age_seconds=0)  # Bersihkan semua file sementara
+        return jsonify({"success": True, "message": "Folder sementara berhasil dibersihkan."})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
+    # Bersihkan file sampah saat startup
+    cleanup_old_files(max_age_seconds=7200)
+
+    url = f"http://127.0.0.1:{port}"
     print("=" * 60)
     print("   HD CONVERTER PRO — Word<->PDF (LOSSLESS / NATIVE COM)")
     print("=" * 60)
-    print(f"Server berjalan di: http://127.0.0.1:{port}")
+    print(f"Server berjalan di: {url}")
     print("Tekan Ctrl+C untuk berhenti.")
     print("=" * 60)
-    app.run(host="127.0.0.1", port=port, debug=False)
+
+    # Buka browser secara otomatis tepat setelah server siap
+    def _open_browser():
+        time.sleep(0.8)
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
+
+    threading.Thread(target=_open_browser, daemon=True).start()
+
+    # Jalankan server dalam mode multi-threaded berkinerja tinggi
+    app.run(host="127.0.0.1", port=port, debug=False, threaded=True)

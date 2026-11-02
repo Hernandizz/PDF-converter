@@ -22,9 +22,11 @@ import zipfile
 import threading
 import concurrent.futures
 import argparse
+import atexit
 from typing import Optional, List, Dict, Any
-from PIL import Image
 import io
+
+# Lazy PIL import in inspect_docx for fast server boot
 
 # COM Types untuk automasi Word di Windows
 try:
@@ -52,22 +54,36 @@ class WordConverterError(Exception):
     pass
 
 
-# Global lock untuk mencegah concurrent access ke instance Word COM (STA Apartment)
+# Global lock untuk thread safety
 word_lock = threading.Lock()
+
+# Dedicated single-threaded executor for Word COM (Single-Threaded Apartment)
+# Keeping a persistent worker thread eliminates thread creation overhead,
+# prevents COM apartment RPC marshalling errors, and speeds up conversions dramatically.
+_com_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1, thread_name_prefix="WordCOMWorker")
+
+
+def run_in_com_thread(func, args=(), kwargs=None, timeout_seconds=75):
+    """Helper untuk menjalankan fungsi COM di worker thread STA dengan batas waktu ketat."""
+    if kwargs is None:
+        kwargs = {}
+    future = _com_executor.submit(func, *args, **kwargs)
+    try:
+        return future.result(timeout=timeout_seconds)
+    except concurrent.futures.TimeoutError:
+        # Re-initialize Word COM jika hang/timeout
+        try:
+            WordAppManager.get_instance().close_app()
+        except Exception:
+            pass
+        raise WordConverterError(
+            f"Konversi Word ke PDF melebihi batas waktu ({timeout_seconds} detik). Dokumen mungkin terlalu besar atau terkunci dialog Word."
+        )
 
 
 def _run_with_timeout(func, args=(), kwargs=None, timeout_seconds=75):
-    """Helper untuk menjalankan fungsi dengan batas waktu ketat agar tidak hanging/stuck."""
-    if kwargs is None:
-        kwargs = {}
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-        future = executor.submit(func, *args, **kwargs)
-        try:
-            return future.result(timeout=timeout_seconds)
-        except concurrent.futures.TimeoutError:
-            raise WordConverterError(
-                f"Konversi Word ke PDF melebihi batas waktu ({timeout_seconds} detik). Dokumen mungkin terlalu besar atau terkunci dialog Word."
-            )
+    """Backward compatible alias for run_in_com_thread."""
+    return run_in_com_thread(func, args, kwargs, timeout_seconds)
 
 
 class WordAppManager:
@@ -76,7 +92,8 @@ class WordAppManager:
     Menghindari overhead pembuatan & penutupan proses Word.exe pada setiap konversi file.
 
     PERFORMA: Word.exe startup memakan ~3-5 detik. Dengan singleton ini,
-    startup hanya terjadi 1x selama aplikasi berjalan.
+    startup hanya terjadi 1x selama aplikasi berjalan, dan calls berlangsung dalam sub-milidetik.
+    Dilengkapi automatic idle-release untuk membebaskan RAM saat tidak digunakan.
     """
     _instance = None
     _lock = threading.Lock()
@@ -84,6 +101,7 @@ class WordAppManager:
     def __init__(self):
         self.word_app = None
         self._com_initialized = False
+        self.last_active_time = time.time()
 
     @classmethod
     def get_instance(cls):
@@ -110,8 +128,13 @@ class WordAppManager:
             )
 
         if not self._com_initialized:
-            comtypes.CoInitialize()
+            try:
+                comtypes.CoInitialize()
+            except Exception:
+                pass
             self._com_initialized = True
+
+        self.last_active_time = time.time()
 
         # Reuse jika masih hidup
         if self._is_app_alive():
@@ -135,6 +158,11 @@ class WordAppManager:
                 self.word_app.Options.SaveInterval = 0
                 self.word_app.Options.UpdateLinksAtOpen = False
                 self.word_app.Options.ConfirmConversions = False
+                # Optimasi kecepatan & ringankan CPU saat konversi dokumen:
+                self.word_app.Options.CheckSpellingAsYouType = False
+                self.word_app.Options.CheckGrammarAsYouType = False
+                self.word_app.Options.SuggestSpellingCorrections = False
+                self.word_app.Options.AnimateScreenMovements = False
             except Exception:
                 pass
             return self.word_app
@@ -143,7 +171,7 @@ class WordAppManager:
             raise WordConverterError(f"Gagal membuka Microsoft Word COM: {str(e)}")
 
     def close_app(self):
-        """Menutup aplikasi Word jika diperlukan."""
+        """Menutup aplikasi Word dan membebaskan RAM."""
         with self._lock:
             if self.word_app is not None:
                 try:
@@ -157,6 +185,16 @@ class WordAppManager:
                     except Exception:
                         pass
                     self._com_initialized = False
+
+    def check_idle_cleanup(self, max_idle_seconds: int = 300):
+        """Menutup Word jika tidak ada konversi selama max_idle_seconds detik untuk menghemat RAM."""
+        with self._lock:
+            if self.word_app is not None and (time.time() - self.last_active_time > max_idle_seconds):
+                self.close_app()
+
+
+# Auto-register cleanup saat proses aplikasi berhenti
+atexit.register(lambda: WordAppManager.get_instance().close_app())
 
 
 class HDWordToPdfConverter:
@@ -174,6 +212,11 @@ class HDWordToPdfConverter:
         """
         Memeriksa kualitas gambar internal di dalam file DOCX secara cepat.
         """
+        try:
+            from PIL import Image
+        except ImportError:
+            Image = None
+
         stats: Dict[str, Any] = {
             "file_name": os.path.basename(docx_path),
             "file_size_bytes": os.path.getsize(docx_path) if os.path.exists(docx_path) else 0,
@@ -191,30 +234,31 @@ class HDWordToPdfConverter:
                 media_files = [f for f in zf.namelist() if f.startswith("word/media/")]
                 stats["image_count"] = len(media_files)
 
-                for media in media_files:
-                    try:
-                        data = zf.read(media)
-                        filename = os.path.basename(media)
-                        with Image.open(io.BytesIO(data)) as img:
-                            width, height = img.size
-                            dpi = img.info.get("dpi", (72, 72))
-                            dpi_val = round(dpi[0]) if isinstance(dpi, tuple) else round(dpi)
+                if Image is not None:
+                    for media in media_files:
+                        try:
+                            data = zf.read(media)
+                            filename = os.path.basename(media)
+                            with Image.open(io.BytesIO(data)) as img:
+                                width, height = img.size
+                                dpi = img.info.get("dpi", (72, 72))
+                                dpi_val = round(dpi[0]) if isinstance(dpi, tuple) else round(dpi)
 
-                            is_hd = (width >= 1280 or height >= 1280 or dpi_val >= 200)
-                            if is_hd:
-                                stats["has_hd_images"] = True
+                                is_hd = (width >= 1280 or height >= 1280 or dpi_val >= 200)
+                                if is_hd:
+                                    stats["has_hd_images"] = True
 
-                            stats["images"].append({
-                                "name": filename,
-                                "format": img.format or "UNKNOWN",
-                                "width": width,
-                                "height": height,
-                                "dpi": dpi_val,
-                                "size_bytes": len(data),
-                                "is_hd": is_hd
-                            })
-                    except Exception:
-                        continue
+                                stats["images"].append({
+                                    "name": filename,
+                                    "format": img.format or "UNKNOWN",
+                                    "width": width,
+                                    "height": height,
+                                    "dpi": dpi_val,
+                                    "size_bytes": len(data),
+                                    "is_hd": is_hd
+                                })
+                        except Exception:
+                            continue
 
             if stats["has_hd_images"]:
                 stats["estimated_quality"] = "Ultra HD (300+ DPI / High-Res)"

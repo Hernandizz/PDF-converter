@@ -7,7 +7,11 @@
   <meta name="description" content="Konversi Word ke PDF HD, PDF ke Word, Gabung PDF, Pisah PDF, dan Gambar ke PDF. 100% lokal via Native Word COM Engine.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@500;600&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet">
+  </noscript>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -617,6 +621,12 @@
 
   <footer class="main-footer">
     <p>HD Converter &bull; Native Microsoft Word COM Engine &bull; 100% Offline</p>
+    <div style="margin-top: 8px; display: flex; justify-content: center; gap: 8px;">
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-clean-temp" style="font-size: 0.75rem; padding: 4px 10px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        Bersihkan File Sementara
+      </button>
+    </div>
   </footer>
 
 </div>

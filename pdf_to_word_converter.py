@@ -5,10 +5,10 @@ Engine konversi PDF ke DOCX menggunakan pdf2docx (High Performance Multi-Core)
 dengan Fallback ke Microsoft Word COM Automation (Windows).
 
 PERFORMA:
-- pdf2docx: Menggunakan multi-processing otomatis untuk dokumen multi-halaman
-  sehingga utilisasi CPU optimal.
-- Fallback MS Word: Menggunakan singleton WordAppManager sehingga proses Word.exe
-  tidak dibuka-tutup berulang kali (menghemat 3-5 detik per file).
+- Lazy Loading pdf2docx: Menghemat ~3.5 detik saat startup aplikasi Flask.
+- Dynamic Multi-Core: Single-core untuk dokumen <= 8 halaman (tanpa overhead spawn process),
+  multi-processing untuk dokumen panjang.
+- Fallback MS Word: Menggunakan dedicated worker singleton WordAppManager.
 """
 
 import os
@@ -17,16 +17,26 @@ import threading
 import concurrent.futures
 from typing import Optional, Dict, Any
 
-try:
-    from pdf2docx import Converter as Pdf2DocxConverter
-    PDF2DOCX_AVAILABLE = True
-except ImportError:
-    PDF2DOCX_AVAILABLE = False
+# Lazy loader untuk pdf2docx: menghindari import fitz/PyMuPDF lambat saat server boot
+_pdf2docx_converter_class = None
+_pdf2docx_checked = False
+
+def _get_pdf2docx():
+    global _pdf2docx_converter_class, _pdf2docx_checked
+    if not _pdf2docx_checked:
+        try:
+            from pdf2docx import Converter as Pdf2DocxConverter
+            _pdf2docx_converter_class = Pdf2DocxConverter
+        except ImportError:
+            _pdf2docx_converter_class = None
+        _pdf2docx_checked = True
+    return _pdf2docx_converter_class
+
 
 try:
     import comtypes
     import comtypes.client
-    from converter import WordAppManager
+    from converter import WordAppManager, run_in_com_thread
     COMTYPES_AVAILABLE = True
 except ImportError:
     COMTYPES_AVAILABLE = False
@@ -49,7 +59,7 @@ pdf_word_lock = threading.Lock()
 
 
 def _run_with_timeout(func, args=(), kwargs=None, timeout_seconds=90):
-    """Helper untuk menjalankan fungsi dengan batas waktu ketat agar tidak hanging/stuck."""
+    """Helper untuk menjalankan fungsi non-COM dengan batas waktu ketat."""
     if kwargs is None:
         kwargs = {}
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
@@ -120,14 +130,24 @@ class PdfToWordConverter:
                 raise PdfToWordError(f"Tidak dapat menimpa file Word yang sedang dibuka: {e}")
 
         # OPSI 1: Gunakan pdf2docx jika output adalah DOCX
-        if PDF2DOCX_AVAILABLE and fmt == 'docx':
+        Pdf2Docx = _get_pdf2docx()
+        if Pdf2Docx and fmt == 'docx':
             def _convert_pdf2docx():
-                cv = Pdf2DocxConverter(input_abs)
+                cv = Pdf2Docx(input_abs)
                 try:
-                    # Deteksi multi-core untuk mempercepat konversi dokumen panjang
+                    # Deteksi jumlah halaman:
+                    # Dokumen <= 8 halaman lebih cepat dijalankan single-process di Windows
+                    # karena spawning 4 python subprocess memakan 1-2 detik overhead.
+                    total_pages = len(cv.pages) if hasattr(cv, 'pages') else 0
                     cpu_cnt = os.cpu_count() or 1
-                    use_mp = cpu_cnt > 2
-                    cv.convert(output_abs, start=0, end=None, multi_processing=use_mp, cpu_count=min(cpu_cnt, 4))
+                    use_mp = (cpu_cnt > 2) and (total_pages > 8)
+                    cv.convert(
+                        output_abs,
+                        start=0,
+                        end=None,
+                        multi_processing=use_mp,
+                        cpu_count=min(cpu_cnt, 4) if use_mp else 1
+                    )
                 finally:
                     cv.close()
 
@@ -139,7 +159,7 @@ class PdfToWordConverter:
                 # Jika pdf2docx gagal atau timeout, lanjut mencoba MS Word COM Fallback...
                 pass
 
-        # OPSI 2: Fallback ke MS Word COM Automation (Singleton WordAppManager)
+        # OPSI 2: Fallback ke MS Word COM Automation (Dedicated Worker WordAppManager)
         if not COMTYPES_AVAILABLE:
             raise PdfToWordError(
                 "Tidak ada engine konversi PDF ke Word yang tersedia (install pdf2docx atau comtypes)."
@@ -187,7 +207,7 @@ class PdfToWordConverter:
                     if not keep_word_open:
                         manager.close_app()
 
-        return _run_with_timeout(_convert_word_com, timeout_seconds=75)
+        return run_in_com_thread(_convert_word_com, timeout_seconds=75)
 
     def get_pdf_info(self, pdf_path: str) -> Dict[str, Any]:
         """

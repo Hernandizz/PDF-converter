@@ -1074,4 +1074,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   })();
 
+  // ---------------------------------------------------------------------------
+  // Clean Temp Files Button
+  // ---------------------------------------------------------------------------
+  const cleanTempBtn = document.getElementById('btn-clean-temp');
+  if (cleanTempBtn) {
+    cleanTempBtn.addEventListener('click', async () => {
+      const origHtml = cleanTempBtn.innerHTML;
+      cleanTempBtn.disabled = true;
+      cleanTempBtn.textContent = 'Membersihkan...';
+      try {
+        const res = await fetch('/api/clean-temp', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          cleanTempBtn.textContent = '✓ File Sampah Dibersihkan!';
+          setTimeout(() => {
+            cleanTempBtn.innerHTML = origHtml;
+            cleanTempBtn.disabled = false;
+          }, 1800);
+        } else {
+          alert('Gagal membersihkan: ' + (data.error || 'Terjadi kesalahan'));
+          cleanTempBtn.innerHTML = origHtml;
+          cleanTempBtn.disabled = false;
+        }
+      } catch (err) {
+        alert('Gagal menghubungi server: ' + err.message);
+        cleanTempBtn.innerHTML = origHtml;
+        cleanTempBtn.disabled = false;
+      }
+    });
+  }
+
 }); // DOMContentLoaded
